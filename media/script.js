@@ -269,8 +269,8 @@ jQuery(function ($) {
                     .addClass(type || 'announcement')
                     .text(text));
             };
-            socket.on('ping', function (data, fn) {
-                fn(data);
+            socket.on('ping-event', function () {
+                socket.emit('pong-event');
             });
             socket.on('message', function (data) {
                 if (data.announce) {

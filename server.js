@@ -59,7 +59,6 @@
             id: playerID
         };
         globalUpdateEventHandler = function () {
-            
         };
         informOtherSockets = function (callback) {
             callback({
@@ -98,12 +97,12 @@
                         // Then verify given against expected
                         dt = (timestamp - playerStartMove);
                         expectedPosition = predictPosition(playerPosition, playerDelta, dt);
-                        if (distance(playerPosition, data.position) < 
+                        if (distance(playerPosition, data.position) <
                                 distance(playerPosition, expectedPosition) * 1.01) {
                             playerPosition = data.position;
                         } else {
                             didCorrect = true;
-                            playerPosition = expectedPosition
+                            playerPosition = expectedPosition;
                         }
                         playerDelta = {x: 0, y: 0};
                         playerStartMove = null;
@@ -126,17 +125,13 @@
         pinger = function () {
             var pingStarted = +new Date(),
                 alreadyCalled = false;
-            socket.emit('ping', pingStarted, function () {
+            socket.once('pong-event', function () {
                 playerPing = +new Date() - pingStarted;
-                alreadyCalled=true;
+                alreadyCalled = true;
                 setTimeout(pinger, 5000);
             });
-            setTimeout(function () {
-                if (!alreadyCalled) {
-                    pinger();
-                }
-            }, 6000);
-        }
+            socket.emit('ping-event');
+        };
         socket.on('disconnect', function () {
             socket.broadcast.emit('message', {'announce': 'Player ' + playerID + ' was disconnected'});
             socket.broadcast.emit('pawn-remove', playerID);
