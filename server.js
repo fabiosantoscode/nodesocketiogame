@@ -18,8 +18,8 @@
         debugInfoChannel = new EventEmitter(),
         server = http.createServer(app),
         io = require('socket.io').listen(server),
-        syncClock = require('./syncclock.js')(config).syncClock,
         induceLag = require('./lag.js')(config).makeInducer,
+        worldFloor = 479,
         playerID = 0;
     app
         .use(express.bodyParser())
@@ -27,8 +27,8 @@
         .get('/', function (req, res) {
             res.render('../index.jade', {});
         });
-    function predictPosition(position, delta, ms) {
-        var s = (ms || 1000) / 1000;
+    function predictPosition(position, delta, ms, ping) {
+        var s = ((ms + (ping || 0)) || 1000) / 1000;
         return {
             x: (+position.x) + ((+delta.x) * (+s)),
             y: (+position.y) + ((+delta.y) * (+s))
@@ -43,14 +43,14 @@
         return Math.sqrt(sqr(xdist) + sqr(ydist));
     }
     io.sockets.on('connection', function (socket) {
-        var playerPosition = {x: 0, y: 480},
+        var playerPosition = {x: 0, y: worldFloor},
             playerSpeed = 350.0, // pixels per second.
             playerStartMove = null,
             playerDelta = {x: 0, y: 0},
             createData,
             latestMove = 0,
             informOtherSockets,
-            playerPing,
+            playerPing = 100,
             pinger,
             globalUpdateEventHandler;
         playerID += 1;
@@ -66,7 +66,6 @@
                 id: playerID
             });
         };
-        socket.on('sync-clock', syncClock);
         socket.on('ready', function (callback) {
             pinger();
             socket.broadcast.emit('message', {'announce': 'Player ' + playerID + ' has connected'});
@@ -79,14 +78,19 @@
             globalUpdateEvent.on('tick', globalUpdateEventHandler);
         });
         socket.on('player-move', function (data) {
-            var timestamp, eventData, dt, expectedPosition, didCorrect;
+            var timestamp,
+                eventData,
+                dt,
+                expectedPosition,
+                didCorrect;
             latestMove = data.timestamp;
             induceLag(function () {
                 timestamp = +new Date();
             }, function () {
                 if (data.direction) {
                     playerDelta.x = (+data.direction) * playerSpeed;
-                    playerStartMove = +new Date();
+                    playerStartMove = +new Date() - playerPing;
+                    // Send debug info
                     debugInfoChannel.emit('key', {
                         position: playerPosition,
                         delta: playerDelta
@@ -96,16 +100,21 @@
                         // calculate stop position using delta vector.
                         // Then verify given against expected
                         dt = (timestamp - playerStartMove);
-                        expectedPosition = predictPosition(playerPosition, playerDelta, dt);
+                        expectedPosition = predictPosition(playerPosition, playerDelta, dt, playerPing);
                         if (distance(playerPosition, data.position) <
-                                distance(playerPosition, expectedPosition) * 1.01) {
+                                distance(playerPosition, expectedPosition) * 1.00000001) {
                             playerPosition = data.position;
                         } else {
+                            socket.emit('player-position-correct', {
+                                expected: expectedPosition,
+                                position: data.position
+                            });
                             didCorrect = true;
                             playerPosition = expectedPosition;
                         }
                         playerDelta = {x: 0, y: 0};
                         playerStartMove = null;
+                        // Send debug info
                         debugInfoChannel.emit('key', {
                             position: playerPosition,
                             delta: playerDelta,
@@ -127,10 +136,12 @@
                 alreadyCalled = false;
             socket.once('pong-event', function () {
                 playerPing = +new Date() - pingStarted;
+                playerPing /= 2;
+                playerPing += config.lag;
                 alreadyCalled = true;
                 setTimeout(pinger, 5000);
             });
-            socket.emit('ping-event');
+            socket.emit('ping-event', playerPing);
         };
         socket.on('disconnect', function () {
             socket.broadcast.emit('message', {'announce': 'Player ' + playerID + ' was disconnected'});

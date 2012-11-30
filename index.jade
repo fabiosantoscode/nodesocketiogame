@@ -1,14 +1,15 @@
 doctype 5
 html
     head
-        title chat app
+        title socket.io game
+        link(rel="stylesheet")(href="media/style.css")
         script(src="media/jquery-1.8.1.min.js")
         script(src="media/inheritance.js")
         script(src="media/socket.io.js")
-        script(src="media/script.js")
         script(src="media/jCanvaScript.1.5.18.js")
-        link(rel="stylesheet")(href="media/style.css")
-    body.index
+        script(src="media/script.js")
+    body.game
+        span.debuginfo.ping
         canvas(width="640")(height="480")#gamecanvas(style="margin:0 auto; display:block;")
             center Your browser does not support teh canvas
         hr

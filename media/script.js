@@ -15,7 +15,9 @@ jQuery(function ($) {
             image: new Image(),
             center: {x: -16, y: -63}
         },
-        playerSpriteLoaded;
+        playerSpriteLoaded,
+        // debug stuff
+        $pingDisplay = $('.debuginfo.ping');
     function vectorSum(a, b) {
         return {
             x: a.x + b.x,
@@ -24,8 +26,8 @@ jQuery(function ($) {
     }
     function vectorMul(a, b) {
         return {
-            x: a.x * b.x || b,
-            y: a.y * b.y || b
+            x: a.x * (b.x || b),
+            y: a.y * (b.y || b)
         };
     }
     function predictPosition(position, delta, ms) { // TODO add acceleration
@@ -81,7 +83,6 @@ jQuery(function ($) {
                 pressedKeys[mappings[e.which] || e.which] = true;
             })
             .on('keydown', function (e) {
-                console.log('keydown');
                 var key = mappings[e.which] || e.which,
                     action = (sides)[key];
                 if (action && action !== lastAction) {
@@ -97,7 +98,6 @@ jQuery(function ($) {
                 pressedKeys[mappings[e.which] || e.which] = false;
             })
             .on('keyup', function (e) {
-                console.log('keyup');
                 var key = mappings[e.which] || e.which,
                     action = sides[key];
                 if (action === 'jump') {
@@ -145,15 +145,12 @@ jQuery(function ($) {
             } else if (autoMove) {
                 this.stop(position);
             }
-            console.log('position: ', position);
-            console.log('delta: ', delta);
         },
         sprite: null,
         move: function (where, whereTo, startedMoving) {
             var animateMove,
                 that = this,
                 oldwhere=where;
-            console.log(where, oldwhere);
             this.position = where;
             this.delta = whereTo;
             this.startedMoving = +new Date();
@@ -269,8 +266,9 @@ jQuery(function ($) {
                     .addClass(type || 'announcement')
                     .text(text));
             };
-            socket.on('ping-event', function () {
+            socket.on('ping-event', function (ping) {
                 socket.emit('pong-event');
+                $pingDisplay.text('Ping: '+ping);
             });
             socket.on('message', function (data) {
                 if (data.announce) {
@@ -292,7 +290,7 @@ jQuery(function ($) {
                         color: col
                     }),
                     errorCorrectionCircle,
-                    whereTo = vectorSum(data.position, vectorMul(data.delta, 1)),
+                    whereTo = vectorSum(data.position, vectorMul(data.delta, 0.1)),
                     thisKeyLine = jc.line([
                         [data.position.x, data.position.y],
                         [whereTo.x, whereTo.y]], col);
@@ -309,7 +307,9 @@ jQuery(function ($) {
                     if (errorCorrectionCircle) {
                         errorCorrectionCircle.del();
                     }
-                    // thisKeyLine.del();
+                    if (thisKeyLine) {
+                        thisKeyLine.del();
+                    }
                 }, 3 * 1000);
             });
         }

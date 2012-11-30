@@ -4,7 +4,7 @@ module.exports = function (config) {
     return {
         makeInducer: function () {
             var lag = config.lag,
-                variance = ((0.5 * lag) / 2),
+                variance = (0.8 * lag),
                 args = arguments;
             if (!lag) {
                 return function () {
