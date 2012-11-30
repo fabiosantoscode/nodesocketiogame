@@ -5,7 +5,7 @@
             httport: 8080,
             socketioport: 9090,
             msgLimit: 100,
-            lag: 100
+            lag: 100 // half ping
         },
         express = require('express'),
         http = require('http'),
@@ -50,7 +50,7 @@
             createData,
             latestMove = 0,
             informOtherSockets,
-            playerPing = 100,
+            playerPing = 100, // half a ping
             pinger,
             globalUpdateEventHandler;
         playerID += 1;
@@ -101,8 +101,8 @@
                         // Then verify given against expected
                         dt = (timestamp - playerStartMove);
                         expectedPosition = predictPosition(playerPosition, playerDelta, dt, playerPing);
-                        if (distance(playerPosition, data.position) <
-                                distance(playerPosition, expectedPosition) * 1.00000001) {
+                        if (distance(expectedPosition, data.position) <
+                                distance(playerPosition, expectedPosition) * 0.01) {
                             playerPosition = data.position;
                         } else {
                             socket.emit('player-position-correct', {
@@ -136,8 +136,8 @@
                 alreadyCalled = false;
             socket.once('pong-event', function () {
                 playerPing = +new Date() - pingStarted;
-                playerPing /= 2;
                 playerPing += config.lag;
+                playerPing /= 2;
                 alreadyCalled = true;
                 setTimeout(pinger, 5000);
             });
