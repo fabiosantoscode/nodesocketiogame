@@ -150,7 +150,7 @@ jQuery(function ($) {
         move: function (where, whereTo, startedMoving) {
             var animateMove,
                 that = this,
-                oldwhere=where;
+                oldwhere = where;
             this.position = where;
             this.delta = whereTo;
             this.startedMoving = +new Date();
@@ -205,7 +205,7 @@ jQuery(function ($) {
             var timestamp = +new Date(),
                 delta,
                 stopWhere,
-                that=this;
+                that = this;
             if (this.wasMoving) { // stop
                 stopWhere = predictPosition(this.position, this.delta, timestamp - this.startedMoving);
                 socket.emit('player-move', {
@@ -279,7 +279,7 @@ jQuery(function ($) {
             };
             socket.on('ping-event', function (ping) {
                 socket.emit('pong-event');
-                $pingDisplay.text('Ping: '+ping);
+                $pingDisplay.text('Ping: ' + ping);
             });
             socket.on('message', function (data) {
                 if (data.announce) {
@@ -313,7 +313,7 @@ jQuery(function ($) {
                         color: red
                     });
                 }
-                setTimeout(function(){
+                setTimeout(function () {
                     thisKeyCircle.del();
                     if (errorCorrectionCircle) {
                         errorCorrectionCircle.del();
