@@ -84,7 +84,7 @@ jQuery(function ($) {
             })
             .on('keydown', function (e) {
                 var key = mappings[e.which] || e.which,
-                    action = (sides)[key];
+                    action = sides[key];
                 if (action && action !== lastAction) {
                     lastAction = action;
                     if (action === 'jump') {
@@ -186,9 +186,20 @@ jQuery(function ($) {
         init: function (position, id) {
             this._super(position);
             setUpKeys(this);
+            this.listenToSocketEvents();
             this.id = id;
         },
         wasMoving: null,
+        listenToSocketEvents: function () {
+            var that = this;
+            socket.on('player-position-correct', function (data) {
+                that.position = data.expected;
+                that.sprite.jcImage.animate({
+                    x: data.expected.x + that.sprite.center.x,
+                    y: data.expected.y + that.sprite.center.y
+                }, 100); // TODO make this alter deceleration.
+            });
+        },
         moveToSide: function (side) {
             // side: -1 (left), 0 (stop) or 1 (right)
             var timestamp = +new Date(),
