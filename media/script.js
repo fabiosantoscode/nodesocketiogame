@@ -20,6 +20,10 @@ jQuery(function ($) {
         },
         playerSpriteLoaded,
         // Canvas graphics (inspired in jCanvaScript)
+        canvasSize = {
+            w: 640,
+            h: 480
+        },
         gameCanvas = document.getElementById('gamecanvas'),
         gameCanvasContext = gameCanvas.getContext('2d'),
         fps = 60,
@@ -317,40 +321,52 @@ jQuery(function ($) {
                 }
             });
             // Debug information!
-            socket.on('debug-key', function (data) {
-                var blue = {r: 50, g: 50, b: 255, a: 1},
-                    red = {r: 255, g: 50, b: 50, a: 1},
-                    green = {r: 50, g: 255, b: 50, a: 1},
-                    col = data.wrongPosition ? green : blue,
-                    thisKeyCircle = jc.circle({
-                        x: data.position.x,
-                        y: data.position.y,
-                        radius: 10,
-                        color: col
-                    }),
-                    errorCorrectionCircle,
-                    whereTo = vectorSum(data.position, vectorMul(data.delta, 0.1)),
-                    thisKeyLine = jc.line([
-                        [data.position.x, data.position.y],
-                        [whereTo.x, whereTo.y]], col);
-                if (data.wrongPosition) {
-                    errorCorrectionCircle = jc.circle({
-                        x: data.wrongPosition.x,
-                        y: data.wrongPosition.y,
-                        radius: 9,
-                        color: red
-                    });
-                }
-                setTimeout(function () {
-                    thisKeyCircle.del();
-                    if (errorCorrectionCircle) {
-                        errorCorrectionCircle.del();
+            (function () {
+                var redrawList = {},
+                    redrawDebug, // function to redraw all debug info
+                    debugInfoTimeout = 1.6 * 1000;
+                redrawDebug = function () {
+                    var key,
+                        data,
+                        ctx=gameCanvasContext, // Get canvas context for debug info.
+                        canvas_w = canvasSize.w,
+                        canvas_h = canvasSize.h;
+                    ctx.clearRect(0, 0, canvas_w, canvas_h); // clear debug canvas
+                    for (key in redrawList) {
+                        if (redrawList.hasOwnProperty(key)){
+                            data = redrawList[key];
+                            if (data) {
+                                ctx.beginPath();
+                                ctx.arc(data.position.x, data.position.y, 10, 0, Math.PI * 2);
+                                ctx.strokeStyle = '#11FF11'; // green
+                                ctx.stroke();
+                                if (data.wrongPosition) {
+                                    ctx.beginPath();
+                                    ctx.arc(data.wrongPosition.x, data.wrongPosition.y, 10, 0, Math.PI * 2);
+                                    ctx.strokeStyle = '#FF1111'; // red
+                                    ctx.stroke();
+                                }
+                                if (data.delta.x || data.delta.y) {
+                                    ctx.strokeStyle = '#1111FF'; // blue
+                                    ctx.moveTo(data.position.x, data.position.y);
+                                    ctx.lineTo(data.whereTo.x, data.whereTo.y);
+                                    ctx.stroke();
+                                }
+                            }
+                        }
                     }
-                    if (thisKeyLine) {
-                        thisKeyLine.del();
-                    }
-                }, 3 * 1000);
-            });
+                };
+                socket.on('debug-key', function (data) {
+                    var uid = +new Date();
+                    data.whereTo = vectorSum(data.position, vectorMul(data.delta, 0.1));
+                    redrawList[uid] = data;
+                    redrawDebug();
+                    setTimeout(function () {
+                        delete redrawList[uid];
+                        redrawDebug();
+                    }, debugInfoTimeout);
+                });
+            }());
         }
     }
     playerSprite.image.onload = function () {
