@@ -1,0 +1,12 @@
+.order(@z){
+    @baseZ: 100;
+    z-index: @baseZ + @z;
+}
+
+#gamecanvas {
+    .order(1);
+}
+
+#debugcanvas {
+    .order(1000);
+}

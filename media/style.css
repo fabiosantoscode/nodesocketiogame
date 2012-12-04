@@ -1,3 +1,9 @@
+#gamecanvas {
+  z-index: 101;
+}
+#debugcanvas {
+  z-index: 1100;
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -8,4 +14,15 @@ ul {
 canvas {
   border: 1px solid black;
   border-radius: 5px;
+}
+.group-canvases-as-layers {
+  height: 480px;
+  width: 640px;
+  margin: 0 auto;
+  position: relative;
+}
+.group-canvases-as-layers canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }

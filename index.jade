@@ -10,8 +10,10 @@ html
         script(src="media/script.js")
     body.game
         span.debuginfo.ping
-        canvas(width="640")(height="480")#gamecanvas(style="margin:0 auto; display:block;")
-            span(style="text-align: center") Your browser does not support teh canvas
+        .group-canvases-as-layers
+            canvas(width="640")(height="480")#debugcanvas
+            canvas(width="640")(height="480")#gamecanvas
+                span(style="text-align: center") Your browser does not support teh canvas
         canvas(width="640")(height="480")#gamecanvas_old(style="margin:0 auto; display:block;")
         hr
         ul.announcements

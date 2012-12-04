@@ -1,3 +1,8 @@
+@import "layers";
+
+@viewportHeight: 480px;
+@viewportWidth: 640px;
+
 html, body {
     margin: 0;
     padding: 0;
@@ -10,4 +15,17 @@ ul {
 canvas {
     border: 1px solid black;
     border-radius: 5px;
+}
+
+.group-canvases-as-layers {
+    height: @viewportHeight;
+    width: @viewportWidth;
+    margin: 0 auto;
+    position: relative;
+    
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
 }

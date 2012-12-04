@@ -2,7 +2,7 @@ jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
         socket = io.connect('http://' + hostname + ':9090'),
-        canvasID = 'gamecanvas_old',
+        canvasID = 'gamecanvas_old', // old canvas's ID, while she lives
         //Classes
         Class = window.Class,
         Framed,
@@ -26,6 +26,8 @@ jQuery(function ($) {
         },
         gameCanvas = document.getElementById('gamecanvas'),
         gameCanvasContext = gameCanvas.getContext('2d'),
+        debugCanvas = document.getElementById('debugcanvas'),
+        debugCanvasContext = debugCanvas.getContext('2d'),
         fps = 60,
         fpsInterval = 1000 / fps,
         requestAnimationFrame =
@@ -45,6 +47,7 @@ jQuery(function ($) {
             window.oCancelRequestAnimationFrame ||
             clearTimeout,
         // debug stuff
+        debugMode = !!$('.debuginfo').length,
         $pingDisplay = $('.debuginfo.ping');
     function vectorSum(a, b) {
         return {
@@ -328,7 +331,7 @@ jQuery(function ($) {
                 redrawDebug = function () {
                     var key,
                         data,
-                        ctx=gameCanvasContext, // Get canvas context for debug info.
+                        ctx = debugCanvasContext, // Get canvas context for debug info.
                         canvas_w = canvasSize.w,
                         canvas_h = canvasSize.h;
                     ctx.clearRect(0, 0, canvas_w, canvas_h); // clear debug canvas
