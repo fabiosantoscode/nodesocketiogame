@@ -2,12 +2,15 @@ jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
         socket = io.connect('http://' + hostname + ':9090'),
-        canvasID = 'gamecanvas',
+        canvasID = 'gamecanvas_old',
+        //Classes
+        Class = window.Class,
+        Framed,
         Entity,
-        //World,
-        Player,
-        player,
         Enemy,
+        Player,
+        //Pawns
+        player,
         playerSpeed = 350.0,
         enemiesList = [],
         //Camera,
@@ -16,6 +19,27 @@ jQuery(function ($) {
             center: {x: -16, y: -63}
         },
         playerSpriteLoaded,
+        // Canvas graphics (inspired in jCanvaScript)
+        gameCanvas = document.getElementById('gamecanvas'),
+        gameCanvasContext = gameCanvas.getContext('2d'),
+        fps = 60,
+        fpsInterval = 1000 / fps,
+        requestAnimationFrame =
+            window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.msrequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            function (callback, elm) {
+                return setTimeout(callback, fpsInterval)
+            },
+        cancelRequestAnimationFrame =
+            window.cancelRequestAnimationFrame ||
+            window.webkitCancelRequestAnimationFrame ||
+            window.mozCancelRequestAnimationFrame ||
+            window.msCancelRequestAnimationFrame ||
+            window.oCancelRequestAnimationFrame ||
+            clearTimeout,
         // debug stuff
         $pingDisplay = $('.debuginfo.ping');
     function vectorSum(a, b) {
@@ -123,7 +147,15 @@ jQuery(function ($) {
                 }
             });
     }
-    Entity = Class.extend({
+    Framed = Class.extend({
+        startedMoving: null,
+        position: {x: 0, y: 0},
+        delta: {x: 0, y: 0},
+        frame: function () {
+            
+        }
+    });
+    Entity = Framed.extend({
         init: function (position) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
@@ -133,9 +165,6 @@ jQuery(function ($) {
                 y: this.position.y + this.sprite.center.y
             });
         },
-        startedMoving: null,
-        position: {x: 0, y: 0},
-        delta: {x: 0, y: 0},
         update: function (position, delta, startedMoving, autoMove) {
             this.position = position;
             this.delta = delta;
@@ -225,8 +254,7 @@ jQuery(function ($) {
                     x: playerSpeed * side,
                     y: 0
                 };
-                that.update(this.position, delta, timestamp);
-                that.move(this.position, delta, timestamp);
+                that.update(this.position, delta, timestamp, true);
             }
             this.wasMoving = side;
         }
