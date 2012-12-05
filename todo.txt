@@ -1,7 +1,5 @@
 To do
 =====
 
- - Use player ping in calculations
  - Player ability to jump
  - Player ability to crouch
- - Better debug display (add "delta" line to the "position" and "expected position" circles)
