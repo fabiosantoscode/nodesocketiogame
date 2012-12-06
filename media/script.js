@@ -5,14 +5,14 @@ jQuery(function ($) {
         canvasID = 'gamecanvas_old', // old canvas's ID, while she lives
         //Classes
         Class = window.Class,
-        Framed,
+        Movement,
         Entity,
         Enemy,
         Player,
         //Pawns
         player,
         playerSpeed = 350.0,
-        enemiesList = [],
+        enemiesList = {},
         //Camera,
         playerSprite = {
             image: new Image(),
@@ -20,6 +20,8 @@ jQuery(function ($) {
         },
         playerSpriteLoaded,
         // Canvas graphics (inspired in jCanvaScript)
+        frameUpdateSubscribers = [],
+        frameUpdate,
         canvasSize = {
             w: 640,
             h: 480
@@ -37,7 +39,7 @@ jQuery(function ($) {
             window.msrequestAnimationFrame ||
             window.oRequestAnimationFrame ||
             function (callback, elm) {
-                return setTimeout(callback, fpsInterval)
+                return setTimeout(callback, fpsInterval);
             },
         cancelRequestAnimationFrame =
             window.cancelRequestAnimationFrame ||
@@ -154,15 +156,12 @@ jQuery(function ($) {
                 }
             });
     }
-    Framed = Class.extend({
-        startedMoving: null,
+    Movement = Class.extend({
+        startedMoving: null, //if null then stopped
         position: {x: 0, y: 0},
         delta: {x: 0, y: 0},
-        frame: function () {
-            
-        }
     });
-    Entity = Framed.extend({
+    Entity = Movement.extend({
         init: function (position) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
@@ -275,7 +274,7 @@ jQuery(function ($) {
             this._super(position);
         }
     });
-    enemiesList = [];
+    enemiesList = {};
     /*
     Camera = new Class.extend({
         
@@ -285,6 +284,42 @@ jQuery(function ($) {
         
     });
     */
+    function gameRenderLoop() {
+        // Render to the "game" layer. Request frame updates from browser (or
+        // setTimeout). this is the only layer which needs constant updates
+        // and slim code. The others might just use setInterval with large intervals
+        // and/or respond to events.
+        var oldTime = +new Date(),
+            loop;
+        loop = function () {
+            var ctx = gameCanvasContext,
+                player = window.player,
+                enemies = enemiesList,
+                predictedPosition,
+                deCentered,
+                time = +new Date(),
+                dt = time - oldTime,
+                enemyID;
+            for (enemyID in enemies) {
+                if (enemies.hasOwnProperty(enemyID)) {
+                    ;
+                }
+            }
+            if (player) {
+                ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
+                if (player.startedMoving) {
+                    predictedPosition = predictPosition(player.position,
+                        player.delta, time - player.startedMoving);
+                } else {
+                    predictedPosition = player.position;
+                }
+                deCentered = vectorSum(player.sprite.center, predictedPosition);
+                ctx.drawImage(player.sprite.image, deCentered.x, deCentered.y);
+            }
+            requestAnimationFrame(loop, gameCanvas);
+        };
+        loop();
+    }
     function tryInit() {
         var $list = $('ul.announcements');
         // Start stuff up after every event has happened.
@@ -323,6 +358,7 @@ jQuery(function ($) {
                     window.announce(data.message, "message");
                 }
             });
+            gameRenderLoop();
             // Debug information!
             (function () {
                 var redrawList = {},
@@ -331,12 +367,10 @@ jQuery(function ($) {
                 redrawDebug = function () {
                     var key,
                         data,
-                        ctx = debugCanvasContext, // Get canvas context for debug info.
-                        canvas_w = canvasSize.w,
-                        canvas_h = canvasSize.h;
-                    ctx.clearRect(0, 0, canvas_w, canvas_h); // clear debug canvas
+                        ctx = debugCanvasContext; // Get canvas context for debug info.
+                    ctx.clearRect(0, 0, canvasSize.w, canvasSize.h); // clear debug canvas
                     for (key in redrawList) {
-                        if (redrawList.hasOwnProperty(key)){
+                        if (redrawList.hasOwnProperty(key)) {
                             data = redrawList[key];
                             if (data) {
                                 ctx.beginPath();
