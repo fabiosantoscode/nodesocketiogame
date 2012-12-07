@@ -2,7 +2,6 @@ jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
         socket = io.connect('http://' + hostname + ':9090'),
-        canvasID = 'gamecanvas_old', // old canvas's ID, while she lives
         //Classes
         Class = window.Class,
         Movement,
@@ -165,49 +164,18 @@ jQuery(function ($) {
         init: function (position) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
-            this.sprite.jcImage = jc.image({
-                image: this.sprite.image,
-                x: this.position.x + this.sprite.center.x,
-                y: this.position.y + this.sprite.center.y
-            });
         },
-        update: function (position, delta, startedMoving, autoMove) {
+        update: function (position, delta, startedMoving, autoStop) {
             this.position = position;
             this.delta = delta;
             this.startedMoving = startedMoving;
-            if (autoMove && (delta.x || delta.y)) {
-                this.move(position, delta, startedMoving);
-            } else if (autoMove) {
+            if (autoStop && (!(delta.x || delta.y))) {
                 this.stop(position);
             }
         },
         sprite: null,
-        move: function (where, whereTo, startedMoving) {
-            var animateMove,
-                that = this,
-                oldwhere = where;
-            this.position = where;
-            this.delta = whereTo;
-            this.startedMoving = +new Date();
-            this.sprite.jcImage.animate({
-                x: where.x + this.sprite.center.x,
-                y: where.y + this.sprite.center.y
-            });
-            animateMove = function (prediction) {
-                var nextPrediction = predictPosition(prediction, whereTo, 4000);
-                that.sprite.jcImage.animate({
-                    x: prediction.x + that.sprite.center.x,
-                    y: prediction.y + that.sprite.center.y
-                }, 4000, function () {
-                    animateMove(nextPrediction);
-                });
-            };
-            animateMove(predictPosition(where, whereTo, 4000));
-        },
-        stop: function (position) {
-            var where = position; // TODO calculate stop position when accel is implemented.
-            this.sprite.jcImage.stop();
-            this.sprite.jcImage.animate(vectorSum(where, this.sprite.center));
+        stop: function (where) {
+            // TODO calculate stop position when accel is implemented.
             this.position = where;
             this.delta = {x: 0, y: 0};
             this.startedMoving = null;
@@ -229,10 +197,6 @@ jQuery(function ($) {
             var that = this;
             socket.on('player-position-correct', function (data) {
                 that.position = data.expected;
-                that.sprite.jcImage.animate({
-                    x: data.expected.x + that.sprite.center.x,
-                    y: data.expected.y + that.sprite.center.y
-                }, 100); // TODO make this alter deceleration.
             });
         },
         moveToSide: function (side) {
@@ -337,7 +301,6 @@ jQuery(function ($) {
                 delete enemiesList[id];
             });
             socket.emit('ready', function (creationData) {
-                jc.start(canvasID, true);
                 player = new Player(creationData.position, creationData.id);
                 window.player = player;
                 console.log('all loaded');
