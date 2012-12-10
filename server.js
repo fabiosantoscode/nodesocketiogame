@@ -2,6 +2,7 @@
     'use strict';
     var config = {
             media: __dirname + "/media",
+            sharedLogic: __dirname + "/shared_logic",
             httport: 8080,
             socketioport: 9090,
             msgLimit: 100,
@@ -24,6 +25,7 @@
     app
         .use(express.bodyParser())
         .use("/media", express['static'](config.media))
+        .use("/shared_logic", express['static'](config.sharedLogic))
         .get('/', function (req, res) {
             res.render('../index.jade', {});
         });

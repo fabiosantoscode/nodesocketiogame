@@ -11,8 +11,10 @@ jQuery(function ($) {
         //Pawns
         player,
         playerSpeed = 350.0,
-        enemiesList = {},
+        //World
         //Camera,
+        world = new window.World(),
+        enemiesList = {},
         playerSprite = {
             image: new Image(),
             center: {x: -16, y: -63}
@@ -279,6 +281,9 @@ jQuery(function ($) {
                 }
                 deCentered = vectorSum(player.sprite.center, predictedPosition);
                 ctx.drawImage(player.sprite.image, deCentered.x, deCentered.y);
+            }
+            if (world) {
+                world.drawWorld(ctx);
             }
             requestAnimationFrame(loop, gameCanvas);
         };
