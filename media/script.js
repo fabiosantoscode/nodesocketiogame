@@ -261,18 +261,28 @@ jQuery(function ($) {
             var ctx = gameCanvasContext,
                 player = window.player,
                 enemies = enemiesList,
+                enemy,
                 predictedPosition,
                 deCentered,
                 time = +new Date(),
                 dt = time - oldTime,
                 enemyID;
+            ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
             for (enemyID in enemies) {
                 if (enemies.hasOwnProperty(enemyID)) {
-                    ;
+                    enemy = enemies[enemyID];
+                    if (enemy.startedMoving) {
+                        predictedPosition = predictPosition(enemy.position,
+                            enemy.delta, time - enemy.startedMoving);
+
+                    } else {
+                        predictedPosition = enemy.position;
+                    }
+                    deCentered = vectorSum(enemy.sprite.center, predictedPosition);
+                    ctx.drawImage(enemy.sprite.image, deCentered.x, deCentered.y);
                 }
             }
             if (player) {
-                ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
                 if (player.startedMoving) {
                     predictedPosition = predictPosition(player.position,
                         player.delta, time - player.startedMoving);
