@@ -65,7 +65,7 @@
                 }
             }
         },
-        boxInWorld: function(position, size) {
+        boxInWorld: function (position, size) {
             var i,
                 objects = this.getObjects(),
                 obj,
@@ -76,15 +76,42 @@
                 obj_pos = obj.position;
                 obj_size = obj.size;
                 if (obj.collision === 'rect') {
-                    if (position.x + size.w > obj_pos.x &&
-                            obj_pos.x + obj_size.w > position.x &&
-                            position.y + size.h > obj_pos.y &&
-                            obj_pos.y + obj_size.h > position.y) {
+                    if (position.x + size.w > obj_pos.x && obj_pos.x + obj_size.w > position.x &&
+                            position.y + size.h > obj_pos.y && obj_pos.y + obj_size.h > position.y) {
                         return true;
                     }
                 }
             }
             return false;
+        },
+        movingBoxInWorld: function (position, size, delta) {
+            /*
+                Collide a moving box against the world
+                   __
+                  /  |
+                 /  /
+                |__/
+            */
+            /* (stub method)
+            var i,
+                objects = this.getObjects(),
+                obj,
+                obj_pos, obj_size,
+                len = objects.length;
+            for (i = 0; i < len; i++) {
+                obj = objects[i];
+                obj_pos = obj.position;
+                obj_size = obj.size;
+                if (obj.collision === 'rect') {
+                    if (position.x + size.w > obj_pos.x && obj_pos.x + obj_size.w > position.x &&
+                            position.y + size.h > obj_pos.y && obj_pos.y + obj_size.h > position.y) {
+                        console.log('Moving box in world');
+                        return true;
+                    }
+                }
+            }
+            console.log('Moving box not in world');
+            return false;*/
         }
     });
 }(this.require, (this.module && this.module.exports) || window));
