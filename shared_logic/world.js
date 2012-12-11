@@ -4,12 +4,8 @@
         require('inheritance.js');
     } // else: include through HTML tag.
     exports.World = Class.extend({
-        init: function () {
-        },
-        getObjects: function (startx, endx, starty, endy) {
-            // Constant and not quadtree optimized for now.
-            // Used for collisions as well as drawing
-            return [
+        init: function (worldObjects) {
+            this.objects = worldObjects ? worldObjects : [
                 {
                     type: 'platform',
                     position: {x: 60, y: 400},
@@ -26,7 +22,12 @@
                     size: {w: 100, h: 200},
                     collision: 'rect'
                 }
-            ]
+            ];
+        },
+        getObjects: function (startx, endx, starty, endy) {
+            // Constant and not quadtree optimized for now.
+            // Used for collisions as well as drawing
+            return this.objects;
         },
         pointInWorld: function(x, y) {
             var i,
@@ -112,6 +113,19 @@
             }
             console.log('Moving box not in world');
             return false;*/
+        },
+        halfPlaneInWorld: function (p1, p2) {
+            /*
+                Checks if a half plane collides with the world.
+                probably badly named.
+                
+                     p2
+                 x  /  
+                   /
+                  /
+                 p1
+            */
+            
         }
     });
 }(this.require, (this.module && this.module.exports) || window));

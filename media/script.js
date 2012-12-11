@@ -227,6 +227,7 @@ jQuery(function ($) {
                     y: 0
                 };
                 that.update(this.position, delta, timestamp, true);
+                world.movingBoxInWorld(this.position, {w: 32, h: 64}, delta);
             }
             this.wasMoving = side;
         }
