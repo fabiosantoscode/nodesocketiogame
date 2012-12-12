@@ -124,8 +124,52 @@
                    /
                   /
                  p1
+                
+                The formula is to check if any part of the world (marked X above) is above the linear function dividing the half plane.
+                This linear function is given by the two points p1 and p2
+                For vertical dividers, we get some special cases.
             */
-            
+            var timesX, offsetX,
+                secondPoint_x, secondPoint_y,
+                objects = this.getObjects(),
+                len = objects.length,
+                verticality = p1.x - p2.x,
+                horizontality = p1.y - p2.y,
+                side,
+                i, obj;
+            if (horizontality === 0 && verticality === 0) {
+                throw new Error('Checking an undefineable plane. p1 == p2');
+            } else if (horizontality === 0) {
+                side = verticality < 0; // side ? 'up' : 'down'
+                for (i = 0; i < len; i++) {
+                    obj = objects[i];
+                    if (obj.collision === 'rect') {
+                        if (side){
+                            if (obj.position.y < p1.y) {
+                                return true;
+                            }
+                        } else {
+                            if (obj.position.y + obj.size.h > p1.y) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } else if (verticality === 0) {
+                return 'cant use vertical dividers yet';
+            } else {
+                return 'cant use linear functions as dividers yet';
+                // create the linear function.
+                
+                // y = (x * timesX) + offsetY
+                for (i = 0; i < len; i++) {
+                    obj = objects[i];
+                    if (obj.collision === 'rect') {
+                        
+                    }
+                }
+            }
+            return false;
         }
     });
 }(this.require, (this.module && this.module.exports) || window));
