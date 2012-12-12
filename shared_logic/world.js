@@ -156,7 +156,21 @@
                     }
                 }
             } else if (verticality === 0) {
-                return 'cant use vertical dividers yet';
+                side = horizontality < 0; // side ? 'right' : 'left';
+                for (i = 0; i < len; i++) {
+                    obj = objects[i];
+                    if (obj.collision === 'rect') {
+                        if (side){
+                            if (obj.position.x + obj.size.w > p1.x) {
+                                return true;
+                            }
+                        } else {
+                            if (obj.position.x < p1.x) {
+                                return true;
+                            }
+                        }
+                    }
+                }
             } else {
                 return 'cant use linear functions as dividers yet';
                 // create the linear function.

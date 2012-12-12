@@ -83,26 +83,83 @@
             {x: 20, y: 10}, {x: 20, y: 0}), false,
             'Vertical half plane to the left of everything');
         equal(world.halfPlaneInWorld(
-            {x: 20, y: 10}, {x: 20, y: 0}), true,
+            {x: 20, y: 0}, {x: 20, y: 10}), true,
             'Vertical half plane to the left of everything (pointing right)');
-        equal(world.halfPlaneInWorld(
-            {x: 460, y: 10}, {x: 460, y: 0}), false,
-            'Vertical half plane to the right of everything');
-        equal(world.halfPlaneInWorld(
-            {x: 440, y: 0}, {x: 440, y: 10}), true,
-            'Not-so to the right of everything (pointing left)');
-       equal(world.halfPlaneInWorld(
-            {x: 440, y: 10}, {x: 440, y: 0}), true,
-            'Not-so to the right of everything (pointing left)');
         equal(world.halfPlaneInWorld(
             {x: 460, y: 10}, {x: 460, y: 0}), true,
             'Vertical half plane to the right of everything (pointing left)');
+        equal(world.halfPlaneInWorld(
+            {x: 460, y: 0}, {x: 460, y: 10}), false,
+            'Vertical half plane to the right of everything (pointing right)');
+        equal(world.halfPlaneInWorld(
+            {x: 440, y: 10}, {x: 440, y: 0}), true,
+            'Not-so to the right of everything (pointing left)');
+       equal(world.halfPlaneInWorld(
+            {x: 440, y: 0}, {x: 440, y: 10}), true,
+            'Not-so to the right of everything (pointing right)');
+        equal(world.halfPlaneInWorld(
+            {x: 40, y: 10}, {x: 40, y: 0}), true,
+            'Not-so to the left of everything (pointing left)');
+       equal(world.halfPlaneInWorld(
+            {x: 40, y: 0}, {x: 40, y: 10}), true,
+            'Not-so to the left of everything (pointing right)');
         equal(world.halfPlaneInWorld(
             {x: 0, y: 0}, {x: 349, y: 409}), true,
             'slightly different half plane, colliding with big box.');
         equal(world.halfPlaneInWorld(
             {x: 0, y: 0}, {x: 349, y: 409}), true,
             'slightly different half plane, colliding with big box. (pointing down)');
+        equal(world.halfPlaneInWorld(
+            {x: -1, y: 1}, {x: 1, y: -1}), false,
+            'slanted half plane excluding everything');
+        equal(world.halfPlaneInWorld(
+            {x: 1, y: -1}, {x: -1, y: 1}), true,
+            'slanted half plane including everything');
+        // remove most stuff below when everything green.
+        if ('not removed this yet') {
+            equal(world.halfPlaneInWorld(
+                {x: 0, y: 290}, {x: 10, y: 289}), false,
+                'horizontal half plane above everything');
+            equal(world.halfPlaneInWorld(
+                {x: 10, y: 290}, {x: 0, y:289}), true,
+                'horizontal half plane above everything (pointing down)');
+            equal(world.halfPlaneInWorld(
+                {x: 0, y: 310}, {x: 10, y: 311}), true,
+                'not so above everything');
+            equal(world.halfPlaneInWorld(
+                {x: 10, y: 310}, {x: 0, y: 311}), true,
+                'not so above everything (pointing down)');
+            equal(world.halfPlaneInWorld(
+                {x: 10, y: 620}, {x: 0, y: 621}), false,
+                'horizontal half plane below everything');
+            equal(world.halfPlaneInWorld(
+                {x: 0, y: 620}, {x: 10, y: 621}), true,
+                'horizontal half plane below everything (pointing up)');
+            equal(world.halfPlaneInWorld(
+                {x: 10, y: 600}, {x: 0, y: 601}), true,
+                'horizontal half plane not so below everything');
+            equal(world.halfPlaneInWorld(
+                {x: 0, y: 600}, {x: 10, y: 601}), true,
+                'horizontal half plane not so below everything (pointing up)');
+            equal(world.halfPlaneInWorld(
+                {x: 20, y: 10}, {x: 19, y: 0}), false,
+                'Vertical half plane to the left of everything');
+            equal(world.halfPlaneInWorld(
+                {x: 20, y: 10}, {x: 19, y: 0}), true,
+                'Vertical half plane to the left of everything (pointing right)');
+            equal(world.halfPlaneInWorld(
+                {x: 460, y: 10}, {x: 461, y: 0}), false,
+                'Vertical half plane to the right of everything (pointing left)');
+            equal(world.halfPlaneInWorld(
+                {x: 460, y: 0}, {x: 461, y: 10}), true,
+                'Vertical half plane to the right of everything (pointing right)');
+            equal(world.halfPlaneInWorld(
+                {x: 440, y: 0}, {x: 441, y: 10}), true,
+                'Not-so to the right of everything (pointing left)');
+           equal(world.halfPlaneInWorld(
+                {x: 440, y: 10}, {x: 441, y: 0}), true,
+                'Not-so to the right of everything (pointing right)');
+        }
         try{
             ok(false, 'Bad half plane raises no exception.');
         } catch (e) {
@@ -110,6 +167,6 @@
         }
     });
     test('Octree tests', function () {
-        
+        expect(0, 'for now');
     });
 }(window));
