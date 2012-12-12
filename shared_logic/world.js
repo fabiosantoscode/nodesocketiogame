@@ -129,8 +129,8 @@
                 This linear function is given by the two points p1 and p2
                 For vertical dividers, we get some special cases.
             */
-            var timesX, offsetX,
-                secondPoint_x, secondPoint_y,
+            var timesX,
+                offsetX, offsetY,
                 objects = this.getObjects(),
                 len = objects.length,
                 verticality = p1.x - p2.x,
@@ -139,12 +139,12 @@
                 i, obj;
             if (horizontality === 0 && verticality === 0) {
                 throw new Error('Checking an undefineable plane. p1 == p2');
-            } else if (horizontality === 0) {
+            } else /*if (horizontality === 0) {
                 side = verticality < 0; // side ? 'up' : 'down'
                 for (i = 0; i < len; i++) {
                     obj = objects[i];
                     if (obj.collision === 'rect') {
-                        if (side){
+                        if (side) {
                             if (obj.position.y < p1.y) {
                                 return true;
                             }
@@ -155,12 +155,12 @@
                         }
                     }
                 }
-            } else if (verticality === 0) {
+            } else*/ if (verticality === 0) {
                 side = horizontality < 0; // side ? 'right' : 'left';
                 for (i = 0; i < len; i++) {
                     obj = objects[i];
                     if (obj.collision === 'rect') {
-                        if (side){
+                        if (side) {
                             if (obj.position.x + obj.size.w > p1.x) {
                                 return true;
                             }
@@ -172,14 +172,31 @@
                     }
                 }
             } else {
-                return 'cant use linear functions as dividers yet';
                 // create the linear function.
-                
-                // y = (x * timesX) + offsetY
-                for (i = 0; i < len; i++) {
-                    obj = objects[i];
-                    if (obj.collision === 'rect') {
-                        
+                offsetX = p1.x - p2.x;
+                offsetY = p1.y - p2.y;
+                timesX = offsetY / offsetX;
+                side = p1.x > p2.x; // side ? 'down' : 'up';
+                // y = ((x - offsetX) * timesX) + offsetY
+                // lin = function (x) {}
+                // return 'offsetX: ' + p1.x + '; offsetY: ' + p1.y + '; timesX: ' + timesX;
+                if (side) {
+                    for (i = 0; i < len; i++) {
+                        obj = objects[i];
+                        if (obj.collision === 'rect') {
+                            if (obj.position.y + obj.size.h > ((obj.position.x - p1.x) * timesX) + p1.y) {
+                                return true;
+                            }
+                        }
+                    }
+                } else {
+                    for (i = 0; i < len; i++) {
+                        obj = objects[i];
+                        if (obj.collision === 'rect') {
+                            if (obj.position.y < ((obj.position.x - p1.x) * timesX) + p1.y) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
