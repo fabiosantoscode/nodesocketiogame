@@ -100,7 +100,7 @@
         equal(world.halfPlaneInWorld(
             {x: 40, y: 10}, {x: 40, y: 0}), true,
             'Not-so to the left of everything (pointing left)');
-       equal(world.halfPlaneInWorld(
+        equal(world.halfPlaneInWorld(
             {x: 40, y: 0}, {x: 40, y: 10}), true,
             'Not-so to the left of everything (pointing right)');
         equal(world.halfPlaneInWorld(
@@ -122,8 +122,38 @@
             ok(true, 'Bad half plane raised exception');
         }
     });
-    test('World collision tests 2', function () {
-        
+    test('World collision tests 2: Half-plane collision corner cases', function () {
+        // Corner cases really means that the corners of our boxes are correctly collided.
+        var world = new World([{
+                type: 'platform',
+                position: {x: 10, y: 10},
+                size: {w: 90, h: 90},
+                collision: 'rect'
+            }]);
+        equal(world.halfPlaneInWorld(
+            {x: 9, y: 11}, {x: 11, y: 9}), false,
+            'Upper left corner case');
+        equal(world.halfPlaneInWorld(
+            {x: 11, y: 13}, {x: 13, y: 11}), true,
+            'Upper left corner case 2');
+        equal(world.halfPlaneInWorld(
+            {x: 101, y: 9}, {x: 102, y: 10}), false,
+            'Upper right corner case');
+        equal(world.halfPlaneInWorld(
+            {x: 98, y: 8}, {x: 99, y: 9}), true,
+            'Upper right corner case 2');
+        equal(world.halfPlaneInWorld(
+            {x: 11, y: 103}, {x: 9, y: 101}), false,
+            'Lower left corner case');
+        equal(world.halfPlaneInWorld(
+            {x: 13, y: 105}, {x: 11, y: 103}), true,
+            'Lower left corner case 2');
+        equal(world.halfPlaneInWorld(
+            {x: 102, y: 100}, {x: 101, y: 101}), false,
+            'Lower right corner case');
+        equal(world.halfPlaneInWorld(
+            {x: 100, y: 98}, {x: 99, y: 99}), true,
+            'Lower right corner case 2');
     });
     test('Octree tests', function () {
         expect(0);

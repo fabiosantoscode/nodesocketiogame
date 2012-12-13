@@ -139,7 +139,7 @@
                 i, obj;
             if (horizontality === 0 && verticality === 0) {
                 throw new Error('Checking an undefineable plane. p1 == p2');
-            } else /*if (horizontality === 0) {
+            } else if (horizontality === 0) {
                 side = verticality < 0; // side ? 'up' : 'down'
                 for (i = 0; i < len; i++) {
                     obj = objects[i];
@@ -155,7 +155,7 @@
                         }
                     }
                 }
-            } else*/ if (verticality === 0) {
+            } else if (verticality === 0) {
                 side = horizontality < 0; // side ? 'right' : 'left';
                 for (i = 0; i < len; i++) {
                     obj = objects[i];
@@ -179,7 +179,7 @@
                 side = p1.x > p2.x; // side ? 'down' : 'up';
                 // y = ((x - offsetX) * timesX) + offsetY
                 // lin = function (x) {}
-                // return 'offsetX: ' + p1.x + '; offsetY: ' + p1.y + '; timesX: ' + timesX;
+                // return ('offsetX: ' + p1.x + '; offsetY: ' + p1.y + '; timesX: ' + timesX + '; side: ' + (side ? 'down' : 'up'));
                 if (side) {
                     for (i = 0; i < len; i++) {
                         obj = objects[i];
