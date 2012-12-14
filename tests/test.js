@@ -45,8 +45,9 @@
             {x: 360, y: 411},
             {w: 10, h: 10}), true, 'test box fully inside the big box');
         // Moving Bounding Box Collision
-        // Half plane collision
-                    /*
+    });
+    test('Half plane world collision tests', function () {
+        /*
                 
                      p2
                  x  /  
@@ -55,7 +56,7 @@
                  p1
                 
             */
-
+        var world = new World(testWorldObjects);
         equal(world.halfPlaneInWorld(
             {x: 0, y: 290}, {x: 10, y: 290}), false,
             'horizontal half plane above everything');
@@ -122,10 +123,8 @@
         } catch (e) {
             ok(true, 'Bad half plane raised exception');
         }
-    });
-    test('World collision tests 2: Half-plane collision corner cases', function () {
-        // Corner cases really means that the corners of our boxes are correctly collided.
-        var world = new World([{
+        // Now for corner cases.
+        world = new World([{
                 type: 'platform',
                 position: {x: 10, y: 10},
                 size: {w: 90, h: 90},
