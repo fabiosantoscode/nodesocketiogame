@@ -29,8 +29,9 @@
             // Used for collisions as well as drawing
             return this.objects;
         },
-        pointInWorld: function(x, y) {
-            var i,
+        pointInWorld: function(x, y, boolean) {
+            var result = [],
+                i,
                 objects = this.getObjects(),
                 obj,
                 pos, size,
@@ -42,11 +43,19 @@
                 if (obj.collision === 'rect') {
                     if ((x > pos.x && x < pos.x + size.w)
                             && (y > pos.y && y < pos.y + size.h)) {
-                        return true;
+                        if (boolean) {
+                            return true;
+                        } else {
+                            result.push(obj);
+                        }
                     }
                 }
             }
-            return false;
+            if (boolean) {
+                return false;
+            } else {
+                return result;
+            }
         },
         drawWorld: function(ctx, offsetx) {
             // Draw every platform in the game world,
@@ -66,8 +75,9 @@
                 }
             }
         },
-        boxInWorld: function (position, size) {
-            var i,
+        boxInWorld: function (position, size, boolean) {
+            var result = [],
+                i,
                 objects = this.getObjects(),
                 obj,
                 obj_pos, obj_size,
@@ -79,11 +89,19 @@
                 if (obj.collision === 'rect') {
                     if (position.x + size.w > obj_pos.x && obj_pos.x + obj_size.w > position.x &&
                             position.y + size.h > obj_pos.y && obj_pos.y + obj_size.h > position.y) {
-                        return true;
+                        if (boolean) {
+                            return true;
+                        } else {
+                            result.push(obj);
+                        }
                     }
                 }
             }
-            return false;
+            if (boolean) {
+                return false;
+            } else {
+                return result;
+            }
         },
         movingBoxInWorld: function (position, size, delta) {
             /*
@@ -92,29 +110,13 @@
                   /  |
                  /  /
                 |__/
+                Cover a shape like the above using half plane collision.
             */
-            /* (stub method)
             var i,
-                objects = this.getObjects(),
-                obj,
-                obj_pos, obj_size,
-                len = objects.length;
-            for (i = 0; i < len; i++) {
-                obj = objects[i];
-                obj_pos = obj.position;
-                obj_size = obj.size;
-                if (obj.collision === 'rect') {
-                    if (position.x + size.w > obj_pos.x && obj_pos.x + obj_size.w > position.x &&
-                            position.y + size.h > obj_pos.y && obj_pos.y + obj_size.h > position.y) {
-                        console.log('Moving box in world');
-                        return true;
-                    }
-                }
-            }
-            console.log('Moving box not in world');
-            return false;*/
+                objects = this.getObjects();
+            // TODO
         },
-        halfPlaneInWorld: function (p1, p2) {
+        halfPlaneInWorld: function (p1, p2, boolean) {
             /*
                 Checks if a half plane collides with the world.
                 probably badly named.
@@ -129,7 +131,8 @@
                 This linear function is given by the two points p1 and p2
                 For vertical dividers, we get some special cases.
             */
-            var timesX,
+            var result = [],
+                timesX,
                 offsetX, offsetY,
                 objects = this.getObjects(),
                 len = objects.length,
@@ -146,11 +149,19 @@
                     if (obj.collision === 'rect') {
                         if (side) {
                             if (obj.position.y < p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         } else {
                             if (obj.position.y + obj.size.h > p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         }
                     }
@@ -162,11 +173,19 @@
                     if (obj.collision === 'rect') {
                         if (side) {
                             if (obj.position.x + obj.size.w > p1.x) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         } else {
                             if (obj.position.x < p1.x) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         }
                     }
@@ -186,11 +205,19 @@
                         if (obj.collision === 'rect') {
                             // Lower left corner
                             if (obj.position.y + obj.size.h > ((obj.position.x - p1.x) * timesX) + p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                             // Lower right corner
                             if (obj.position.y + obj.size.h > (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         }
                     }
@@ -200,17 +227,29 @@
                         if (obj.collision === 'rect') {
                             // Upper left corner
                             if (obj.position.y < ((obj.position.x - p1.x) * timesX) + p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                             // Upper right corner
                             if (obj.position.y < (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
-                                return true;
+                                if (boolean) {
+                                    return true;
+                                } else {
+                                    result.push(obj);
+                                }
                             }
                         }
                     }
                 }
             }
-            return false;
+            if (boolean) {
+                return false;
+            } else {
+                return result;
+            }
         }
     });
 }(this.require, (this.module && this.module.exports) || window));

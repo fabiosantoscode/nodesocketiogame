@@ -27,24 +27,27 @@
     test('World collision tests', function () {
         var world = new World(testWorldObjects);
         // Point Collision
-        equal(world.pointInWorld(-10, -10), false, 'test point outside the big box');
-        equal(world.pointInWorld(355, 415), true, 'test point inside the big box');
-        equal(world.pointInWorld(345, 409), false, 'test point to the left and above of the big box');
-        equal(world.pointInWorld(345, 611), false, 'test point to the left and below the big box');
-        equal(world.pointInWorld(455, 611), false, 'test point to the right and below the big box');
+        equal(world.pointInWorld(-10, -10, true), false, 'test point outside the big box');
+        equal(world.pointInWorld(355, 415, true), true, 'test point inside the big box');
+        equal(world.pointInWorld(345, 409, true), false, 'test point to the left and above of the big box');
+        equal(world.pointInWorld(345, 611, true), false, 'test point to the left and below the big box');
+        equal(world.pointInWorld(455, 611, true), false, 'test point to the right and below the big box');
         // Moving Point Collision
         // unimpl.
         // Bounding Box Collision
         equal(world.boxInWorld(
             {x: 10, y: 10},
-            {w: 10, h: 10}), false, 'test box completely outside the big box');
+            {w: 10, h: 10}, true), false, 'test box completely outside the big box');
         equal(world.boxInWorld(
             {x: 340, y: 409},
-            {w: 20, h: 20}), true, 'test box half inside the big box');
+            {w: 20, h: 20}, true), true, 'test box half inside the big box');
         equal(world.boxInWorld(
             {x: 360, y: 411},
-            {w: 10, h: 10}), true, 'test box fully inside the big box');
+            {w: 10, h: 10}, true), true, 'test box fully inside the big box');
         // Moving Bounding Box Collision
+        equal(world.movingBoxInWorld({x: 330, y: 390}, {w: 10, h: 10}, {x: 10, y: 0}, true),
+            {x: 340, y: 400, offset: 10 * 1000},
+            'Moving bounding box set to hit the world after 10 seconds.');
     });
     test('Half plane world collision tests', function () {
         /*
@@ -58,64 +61,64 @@
             */
         var world = new World(testWorldObjects);
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 290}, {x: 10, y: 290}), false,
+            {x: 0, y: 290}, {x: 10, y: 290}, true), false,
             'horizontal half plane above everything');
         equal(world.halfPlaneInWorld(
-            {x: 10, y: 290}, {x: 0, y:290}), true,
+            {x: 10, y: 290}, {x: 0, y:290}, true), true,
             'horizontal half plane above everything (pointing down)');
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 310}, {x: 10, y: 310}), true,
+            {x: 0, y: 310}, {x: 10, y: 310}, true), true,
             'not so above everything');
         equal(world.halfPlaneInWorld(
-            {x: 10, y: 310}, {x: 0, y: 310}), true,
+            {x: 10, y: 310}, {x: 0, y: 310}, true), true,
             'not so above everything (pointing down)');
         equal(world.halfPlaneInWorld(
-            {x: 10, y: 620}, {x: 0, y: 620}), false,
+            {x: 10, y: 620}, {x: 0, y: 620}, true), false,
             'horizontal half plane below everything');
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 620}, {x: 10, y: 620}), true,
+            {x: 0, y: 620}, {x: 10, y: 620}, true), true,
             'horizontal half plane below everything (pointing up)');
         equal(world.halfPlaneInWorld(
-            {x: 10, y: 600}, {x: 0, y: 600}), true,
+            {x: 10, y: 600}, {x: 0, y: 600}, true), true,
             'horizontal half plane not so below everything');
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 600}, {x: 10, y: 600}), true,
+            {x: 0, y: 600}, {x: 10, y: 600}, true), true,
             'horizontal half plane not so below everything (pointing up)');
         equal(world.halfPlaneInWorld(
-            {x: 20, y: 10}, {x: 20, y: 0}), false,
+            {x: 20, y: 10}, {x: 20, y: 0}, true), false,
             'Vertical half plane to the left of everything');
         equal(world.halfPlaneInWorld(
-            {x: 20, y: 0}, {x: 20, y: 10}), true,
+            {x: 20, y: 0}, {x: 20, y: 10}, true), true,
             'Vertical half plane to the left of everything (pointing right)');
         equal(world.halfPlaneInWorld(
-            {x: 460, y: 10}, {x: 460, y: 0}), true,
+            {x: 460, y: 10}, {x: 460, y: 0}, true), true,
             'Vertical half plane to the right of everything (pointing left)');
         equal(world.halfPlaneInWorld(
-            {x: 460, y: 0}, {x: 460, y: 10}), false,
+            {x: 460, y: 0}, {x: 460, y: 10}, true), false,
             'Vertical half plane to the right of everything (pointing right)');
         equal(world.halfPlaneInWorld(
-            {x: 440, y: 10}, {x: 440, y: 0}), true,
+            {x: 440, y: 10}, {x: 440, y: 0}, true), true,
             'Not-so to the right of everything (pointing left)');
         equal(world.halfPlaneInWorld(
-            {x: 440, y: 0}, {x: 440, y: 10}), true,
+            {x: 440, y: 0}, {x: 440, y: 10}, true), true,
             'Not-so to the right of everything (pointing right)');
         equal(world.halfPlaneInWorld(
-            {x: 40, y: 10}, {x: 40, y: 0}), true,
+            {x: 40, y: 10}, {x: 40, y: 0}, true), true,
             'Not-so to the left of everything (pointing left)');
         equal(world.halfPlaneInWorld(
-            {x: 40, y: 0}, {x: 40, y: 10}), true,
+            {x: 40, y: 0}, {x: 40, y: 10}, true), true,
             'Not-so to the left of everything (pointing right)');
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 0}, {x: 349, y: 409}), true,
+            {x: 0, y: 0}, {x: 349, y: 409}, true), true,
             'slightly different half plane, colliding with big box.');
         equal(world.halfPlaneInWorld(
-            {x: 0, y: 0}, {x: 349, y: 409}), true,
+            {x: 0, y: 0}, {x: 349, y: 409}, true), true,
             'slightly different half plane, colliding with big box. (pointing down)');
         equal(world.halfPlaneInWorld(
-            {x: -1, y: 1}, {x: 1, y: -1}), false,
+            {x: -1, y: 1}, {x: 1, y: -1}, true), false,
             'slanted half plane excluding everything');
         equal(world.halfPlaneInWorld(
-            {x: 1, y: -1}, {x: -1, y: 1}), true,
+            {x: 1, y: -1}, {x: -1, y: 1}, true), true,
             'slanted half plane including everything');
         try{
             world.halfPlaneInWorld({x: 10, y: 10}, {x: 10, y: 10});
@@ -123,6 +126,10 @@
         } catch (e) {
             ok(true, 'Bad half plane raised exception');
         }
+        equal(world.halfPlaneInWorld({x: 0, y: 0}, {x: 10, y: 0}).length,
+            0, 'query nothing');
+        equal(world.halfPlaneInWorld({x: 10, y: 0}, {x: 0, y: 0}).length,
+            testWorldObjects.length, 'query all objects');
         // Now for corner cases.
         world = new World([{
                 type: 'platform',
@@ -131,28 +138,28 @@
                 collision: 'rect'
             }]);
         equal(world.halfPlaneInWorld(
-            {x: 9, y: 11}, {x: 11, y: 9}), false,
+            {x: 9, y: 11}, {x: 11, y: 9}, true), false,
             'Upper left corner case');
         equal(world.halfPlaneInWorld(
-            {x: 11, y: 13}, {x: 13, y: 11}), true,
+            {x: 11, y: 13}, {x: 13, y: 11}, true), true,
             'Upper left corner case 2');
         equal(world.halfPlaneInWorld(
-            {x: 101, y: 9}, {x: 102, y: 10}), false,
+            {x: 101, y: 9}, {x: 102, y: 10}, true), false,
             'Upper right corner case');
         equal(world.halfPlaneInWorld(
-            {x: 98, y: 10}, {x: 99, y: 11}), true,
+            {x: 98, y: 10}, {x: 99, y: 11}, true), true,
             'Upper right corner case 2');
         equal(world.halfPlaneInWorld(
-            {x: 11, y: 103}, {x: 9, y: 101}), false,
+            {x: 11, y: 103}, {x: 9, y: 101}, true), false,
             'Lower left corner case');
         equal(world.halfPlaneInWorld(
-            {x: 12, y: 100}, {x: 10, y: 98}), true,
+            {x: 12, y: 100}, {x: 10, y: 98}, true), true,
             'Lower left corner case 2');
         equal(world.halfPlaneInWorld(
-            {x: 102, y: 100}, {x: 101, y: 101}), false,
+            {x: 102, y: 100}, {x: 101, y: 101}, true), false,
             'Lower right corner case');
         equal(world.halfPlaneInWorld(
-            {x: 100, y: 98}, {x: 99, y: 99}), true,
+            {x: 100, y: 98}, {x: 99, y: 99}, true), true,
             'Lower right corner case 2');
     });
     test('Octree tests', function () {
