@@ -19,6 +19,7 @@
                 collision: 'rect'
             }
         ];
+    
     test('World class tests', function () {
         var world = new World(testWorldObjects);
         equal(world.getObjects().length, 3);
@@ -140,13 +141,13 @@
             {x: 101, y: 9}, {x: 102, y: 10}), false,
             'Upper right corner case');
         equal(world.halfPlaneInWorld(
-            {x: 98, y: 8}, {x: 99, y: 9}), true,
+            {x: 98, y: 10}, {x: 99, y: 11}), true,
             'Upper right corner case 2');
         equal(world.halfPlaneInWorld(
             {x: 11, y: 103}, {x: 9, y: 101}), false,
             'Lower left corner case');
         equal(world.halfPlaneInWorld(
-            {x: 13, y: 105}, {x: 11, y: 103}), true,
+            {x: 12, y: 100}, {x: 10, y: 98}), true,
             'Lower left corner case 2');
         equal(world.halfPlaneInWorld(
             {x: 102, y: 100}, {x: 101, y: 101}), false,

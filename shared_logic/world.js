@@ -184,7 +184,12 @@
                     for (i = 0; i < len; i++) {
                         obj = objects[i];
                         if (obj.collision === 'rect') {
+                            // Lower left corner
                             if (obj.position.y + obj.size.h > ((obj.position.x - p1.x) * timesX) + p1.y) {
+                                return true;
+                            }
+                            // Lower right corner
+                            if (obj.position.y + obj.size.h > (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
                                 return true;
                             }
                         }
@@ -193,7 +198,12 @@
                     for (i = 0; i < len; i++) {
                         obj = objects[i];
                         if (obj.collision === 'rect') {
+                            // Upper left corner
                             if (obj.position.y < ((obj.position.x - p1.x) * timesX) + p1.y) {
+                                return true;
+                            }
+                            // Upper right corner
+                            if (obj.position.y < (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
                                 return true;
                             }
                         }
