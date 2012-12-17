@@ -25,7 +25,13 @@
         equal(world.getObjects().length, 3);
     });
     test('World collision tests', function () {
-        var world = new World(testWorldObjects);
+        var world = new World(testWorldObjects),
+            smallWorld = new World([{
+                position: {x: 10, y: 10},
+                size: {h: 10, w: 10},
+                collision: 'rect'
+            }]);
+        
         // Point Collision
         equal(world.pointInWorld(-10, -10, true), false, 'test point outside the big box');
         equal(world.pointInWorld(355, 415, true), true, 'test point inside the big box');
@@ -45,9 +51,20 @@
             {x: 360, y: 411},
             {w: 10, h: 10}, true), true, 'test box fully inside the big box');
         // Moving Bounding Box Collision
-        equal(world.movingBoxInWorld({x: 330, y: 390}, {w: 10, h: 10}, {x: 10, y: 0}, true),
-            {x: 340, y: 400, offset: 10 * 1000},
-            'Moving bounding box set to hit the world after 10 seconds.');
+        equal(world.movingBoxInWorld(
+            {x: 330, y: 410}, // position
+            {w: 10, h: 10}, // size
+            {x: 20, y: 0}, // delta
+            'boolean',
+            10 * 1000),
+            true, 'Moving bounding box set to hit the world.');
+        equal(world.movingBoxInWorld(
+            {x: 330, y: 390}, // position
+            {w: 10, h: 10}, // size
+            {x: 10, y: 0}, // delta
+            'boolean',
+            100),
+            false, 'Moving bounding box which wont hit the world.');
     });
     test('Half plane world collision tests', function () {
         /*
@@ -161,6 +178,31 @@
         equal(world.halfPlaneInWorld(
             {x: 100, y: 98}, {x: 99, y: 99}, true), true,
             'Lower right corner case 2');
+    });
+    test('boxInWorld tests', function () {
+        var objects = [{
+                type: 'platform',
+                position: {x: 10, y: 10},
+                size: {w: 90, h: 90},
+                collision: 'rect'
+            }],
+            world = new World(objects);
+        equal(world.boxInWorld({x: 0, y: 0}, {h: 9, w: 9}, true), false, 'Top left');
+        equal(world.boxInWorld({x: 101, y: 0}, {h: 9, w: 9}, true), false, 'Top right');
+        equal(world.boxInWorld({x: 0, y: 101}, {h: 9, w: 9}, true), false, 'Bottom left');
+        equal(world.boxInWorld({x: 101, y: 101}, {h: 9, w: 9}, true), false, 'Bottom right');
+        equal(world.boxInWorld({x: 2, y: 2}, {h: 9, w: 9}, true), true, 'Top left 2');
+        equal(world.boxInWorld({x: 98, y: 2}, {h: 9, w: 9}, true), true, 'Top right 2');
+        equal(world.boxInWorld({x: 2, y: 98}, {h: 9, w: 9}, true), true, 'Bottom left 2');
+        equal(world.boxInWorld({x: 98, y: 98}, {h: 9, w: 9}, true), true, 'Bottom right 2');
+        ok(world.boxInWorld({x: 0, y: 0}, {h: 9, w: 9}), 'Top left (obj mode)');
+        ok(world.boxInWorld({x: 101, y: 0}, {h: 9, w: 9}), 'Top right (obj mode)');
+        ok(world.boxInWorld({x: 0, y: 101}, {h: 9, w: 9}), 'Bottom left (obj mode)');
+        ok(world.boxInWorld({x: 101, y: 101}, {h: 9, w: 9}), 'Bottom right (obj mode)');
+        ok(world.boxInWorld({x: 2, y: 2}, {h: 9, w: 9}), 'Top left 2 (obj mode)');
+        ok(world.boxInWorld({x: 98, y: 2}, {h: 9, w: 9}), 'Top right 2 (obj mode)');
+        ok(world.boxInWorld({x: 2, y: 98}, {h: 9, w: 9}), 'Bottom left 2 (obj mode)');
+        ok(world.boxInWorld({x: 98, y: 98}, {h: 9, w: 9}), 'Bottom right 2 (obj mode)');
     });
     test('Octree tests', function () {
         expect(0);

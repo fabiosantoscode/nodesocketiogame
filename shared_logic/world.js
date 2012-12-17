@@ -1,11 +1,18 @@
 (function (require, exports) {
-    'use strict'
+    'use strict';
+    // TODO get all these util functions on shared_logic
+    function vectorSum(a, b) {
+        return {
+            x: a.x + b.x,
+            y: a.y + b.y
+        };
+    }
     if (require) {
         require('inheritance.js');
     } // else: include through HTML tag.
     exports.World = Class.extend({
         init: function (worldObjects) {
-            this.objects = worldObjects ? worldObjects : [
+            this.objects = worldObjects || [
                 {
                     type: 'platform',
                     position: {x: 60, y: 400},
@@ -29,14 +36,14 @@
             // Used for collisions as well as drawing
             return this.objects;
         },
-        pointInWorld: function(x, y, boolean) {
+        pointInWorld: function (x, y, boolean) {
             var result = [],
                 i,
                 objects = this.getObjects(),
                 obj,
                 pos, size,
                 len = objects.length;
-            for (i = 0; i < len; i++) {
+            for (i = 0; i < len; i += 1) {
                 obj = objects[i];
                 pos = obj.position;
                 size = obj.size;
@@ -65,7 +72,7 @@
                 obj,
                 pos, size,
                 len = objects.length;
-            for (i = 0; i < len; i++) {
+            for (i = 0; i < len; i += 1) {
                 obj = objects[i];
                 pos = obj.position;
                 size = obj.size;
@@ -82,7 +89,7 @@
                 obj,
                 obj_pos, obj_size,
                 len = objects.length;
-            for (i = 0; i < len; i++) {
+            for (i = 0; i < len; i += 1) {
                 obj = objects[i];
                 obj_pos = obj.position;
                 obj_size = obj.size;
@@ -103,20 +110,71 @@
                 return result;
             }
         },
-        movingBoxInWorld: function (position, size, delta) {
+        movingBoxInWorld: function (startPosition, size, delta, get, timeLimit) {
             /*
                 Collide a moving box against the world
-                   __
-                  /  |
-                 /  /
-                |__/
-                Cover a shape like the above using half plane collision.
+                   __   __
+                  /  | |  \
+                 /  /   \  \
+                |__/     \__\
+                Cover a shape like the above ones using half plane collision.
+                
+                get: time|boolean|list|position (default is boolean)
             */
+            if (['time', 'list', 'position'].indexOf(get) !== -1) {
+                return 'Cant get ' + get + ' yet.';
+            }
             var i,
-                objects = this.getObjects();
-            // TODO
+                objects = this.getObjects(),
+                len = objects.length,
+                timeLimitSeconds = timeLimit * 1000,
+                tmp,
+                endPosition = {
+                    x: (+startPosition.x) + ((+delta.x) * (+timeLimitSeconds)),
+                    y: (+startPosition.y) + ((+delta.y) * (+timeLimitSeconds))
+                },
+                // points
+                l1_p1, l1_p2,
+                l2_p1, l2_p2,
+                result = {},
+                min_x = Math.min(startPosition.x, endPosition.x),
+                max_x = Math.max(startPosition.x, endPosition.x) + size.w,
+                min_y = Math.min(startPosition.y, endPosition.y),
+                max_y = Math.max(startPosition.y, endPosition.y) + size.h;
+            if (delta.x === 0 && delta.y === 0) {
+                return 'cant handle static boxes yet';
+            } else if ((delta.x >= 0 && delta.y <= 0) || (delta.x <= 0 && delta.y >= 0)) {
+                // Connect the upper left corners and the lower right corners
+                l1_p1 = startPosition;
+                l1_p2 = endPosition;
+                l2_p1 = vectorSum(startPosition, {x: size.w, y: size.h});
+                l2_p2 = vectorSum(endPosition, {x: size.w, y: size.h});
+                // Same corners, but swap direction
+                if (delta.x >= 0 && delta.y <= 0) {
+                    tmp = l1_p1; l1_p1 = l1_p2; l1_p2 = tmp;
+                    tmp = l2_p1; l2_p1 = l2_p2; l2_p2 = tmp;
+                }
+            } else if ((delta.x <= 0 && delta.y <= 0) || (delta.x >= 0 && delta.y >= 0)) {
+                // Connect the upper right corners and the lower left corners
+                l1_p1 = {x: startPosition.x + size.w, y: startPosition.y};
+                l1_p2 = {x: endPosition.x + size.w, y: endPosition.y};
+                l2_p1 = {x: startPosition.x, y: startPosition.y + size.h};
+                l2_p2 = {x: endPosition.x, y: endPosition.y + size.h};
+                // Likewise. In one of the cases, swap direction.
+                if (delta.x >= 0 && delta.y >= 0) {
+                    tmp = l1_p1; l1_p1 = l1_p2; l1_p2 = tmp;
+                    tmp = l2_p1; l2_p1 = l2_p2; l2_p2 = tmp;
+                }
+            }
+            result.elements = this.boxInWorld(
+                {x: min_x, y: min_y},
+                {w: max_x - min_x, h: max_y - min_y});
+            // Filter the result further
+            result.elements = this.halfPlaneInWorld(l1_p1, l1_p2, false, result.elements);
+            result.elements = this.halfPlaneInWorld(l2_p1, l2_p2, false, result.elements);
+            return !!result.elements.length;
         },
-        halfPlaneInWorld: function (p1, p2, boolean) {
+        halfPlaneInWorld: function (p1, p2, boolean, in_elements) {
             /*
                 Checks if a half plane collides with the world.
                 probably badly named.
@@ -134,7 +192,7 @@
             var result = [],
                 timesX,
                 offsetX, offsetY,
-                objects = this.getObjects(),
+                objects = in_elements || this.getObjects(),
                 len = objects.length,
                 verticality = p1.x - p2.x,
                 horizontality = p1.y - p2.y,
@@ -144,7 +202,7 @@
                 throw new Error('Checking an undefineable plane. p1 == p2');
             } else if (horizontality === 0) {
                 side = verticality < 0; // side ? 'up' : 'down'
-                for (i = 0; i < len; i++) {
+                for (i = 0; i < len; i += 1) {
                     obj = objects[i];
                     if (obj.collision === 'rect') {
                         if (side) {
@@ -168,7 +226,7 @@
                 }
             } else if (verticality === 0) {
                 side = horizontality < 0; // side ? 'right' : 'left';
-                for (i = 0; i < len; i++) {
+                for (i = 0; i < len; i += 1) {
                     obj = objects[i];
                     if (obj.collision === 'rect') {
                         if (side) {
@@ -200,7 +258,7 @@
                 // lin = function (x) {}
                 // return ('offsetX: ' + p1.x + '; offsetY: ' + p1.y + '; timesX: ' + timesX + '; side: ' + (side ? 'down' : 'up'));
                 if (side) {
-                    for (i = 0; i < len; i++) {
+                    for (i = 0; i < len; i += 1) {
                         obj = objects[i];
                         if (obj.collision === 'rect') {
                             // Lower left corner
@@ -222,7 +280,7 @@
                         }
                     }
                 } else {
-                    for (i = 0; i < len; i++) {
+                    for (i = 0; i < len; i += 1) {
                         obj = objects[i];
                         if (obj.collision === 'rect') {
                             // Upper left corner
