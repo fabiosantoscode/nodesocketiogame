@@ -1,6 +1,7 @@
 To do
 =====
 
+ - Player collides with world
  - Player ability to jump
  - Player ability to crouch
  - Account for acceleration in both client and server
