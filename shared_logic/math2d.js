@@ -2,7 +2,6 @@
     'use strict';
     var Math2D;
     Math2D = exports.Math2D = {
-        
         pointInHalfPlane: function (p1, p2, point) {
             var angdiff = (Math2D.halfPlaneAngle(p1, p2)
                 - Math2D.halfPlaneAngle(p1, point));
@@ -20,14 +19,30 @@
             return ang;
         },
         halfPlaneAngle: function (p1, p2) {
-            var ang = Math2D.angleBetween2Points(p1, p2) + (Math.PI / 2);
-            
-            return ang;
+            return Math2D.angleBetween2Points(p1, p2) + (Math.PI / 2);
+        },
+        vectorLength: function (v) {
+            return Math.sqrt(Math2D.vectorSqLength(v));
+        },
+        vectorSqLength: function (v) {
+            return sqr(Math.abs(v.x)) + sqr(Math.abs(v.y));
+        },
+        vectorDistance: function (a, b) {
+            return Math2D.vectorLength(Math2D.vectorSub(a, b));
+        },
+        vectorSqDistance: function (a, b) {
+            return Math2D.vectorSqLength(Math2D.vectorSub(a, b));
         },
         vectorAdd: function (a, b) {
             return {
                 x: a.x + b.x,
                 y: a.y + b.y
+            };
+        },
+        vectorSub: function (a, b) {
+            return {
+                x: a.x - b.x,
+                y: a.y - b.y
             };
         },
         angleBetween2Points: function (a, b) {
@@ -52,11 +67,12 @@
             }
         },
         pointsOfBox: function (position, size) {
+            // Return counter-clockwise list of box points.
             return [
-                position,
-                Math2D.vectorAdd(position, {x: size.w, y: 0}),
+                {x: position.x, y: position.y},
                 Math2D.vectorAdd(position, {x: 0, y: size.h}),
-                Math2D.vectorAdd(position, {x: size.w, y: size.h})
+                Math2D.vectorAdd(position, {x: size.w, y: size.h}),
+                Math2D.vectorAdd(position, {x: size.w, y: 0})
             ];
         }
     };
