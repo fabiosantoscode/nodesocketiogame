@@ -18,13 +18,111 @@
                 size: {w: 100, h: 200},
                 collision: 'rect'
             }
-        ];
-    
+        ],
+        roundVector = function (v) {
+            return {
+                x: Math.round(v.x * 10) / 10,
+                y: Math.round(v.y * 10) / 10
+            };
+        };
+    test('2d math functions', function () {
+        equal(Math2D.halfPlaneAngle(
+            {x: 0, y: 0}, {x: 0, y: 15}), Math.PI / 2, 'Half plane angle detection');
+        equal(Math2D.halfPlaneAngle(
+            {x: 0, y: 0}, {x: 0, y: -15}), Math.PI * (3 / 2), 'Half plane angle detection');
+        equal(Math2D.halfPlaneAngle(
+            {x: 10, y: 10}, {x: 10, y: 11}), Math.PI / 2, 'Half plane angle detection');
+        equal(Math2D.halfPlaneAngle(
+            {x: 10, y: 10}, {x: 10, y: 0}), Math.PI * (3 / 2), 'Half plane angle detection');
+        
+        equal(Math2D.pointInHalfPlane(
+            {x: 10, y: 290}, {x: 0, y:290},
+            {x: 30, y: 30}), false, 'Point in half plane pointing away');
+        equal(Math2D.pointInHalfPlane(
+            {x: 0, y: 290}, {x: 10, y: 290},
+            {x: 30, y: 30}), true, 'Point in half plane pointing into it');
+        
+        deepEqual(Math2D.vectorAdd(
+            {x: 1, y: 1}, {x: 1, y: 1}),
+            {x: 2, y: 2}, 'Add two vectors');
+        
+        equal(Math2D.angleBetween2Points(
+            {x: -10, y: -10}, {x: 0, y: 0}), Math.PI * (1 / 4),
+            'Angle between 2 points');
+        
+        deepEqual(roundVector(Math2D.rotatePoint(
+            {x: 0, y: 0}, {x: 1, y: 0}, Math.PI / 2)), {x: 0, y: 1},
+            'rotatePoint');
+        deepEqual(roundVector(Math2D.rotatePoint(
+            {x: 1, y: 0}, Math.PI / 2)), {x: 0, y: 1},
+            'rotatePoint');
+        deepEqual(Math2D.pointsOfBox(
+            {x: 1, y: 1}, {h: 9, w: 9}), [
+                {x: 1 , y: 1},
+                {x: 10, y: 1},
+                {x: 1, y: 10},
+                {x: 10, y: 10}
+            ], 'pointsOfBox');
+    });
+    test('Fix moving box query bugs', function () {
+        var size = {w: 2, h: 2},
+            lotsOfTime = 10,
+            world = new World([{
+                position: {x: 10, y: 10},
+                size: {w: 10, h: 10},
+                collision: 'rect'
+            }]);
+        return; //TODO
+        deepEqual(world.movingBoxInWorld({x: -1, y: 21}, size,
+            {x: 10, y: -10}, 'boolean', lotsOfTime), true,
+            'delta X >= 0 and delta Y <= 0');
+        deepEqual(world.movingBoxInWorld({x: 21, y: -1}, size,
+            {x: -10, y: 10}, 'boolean', lotsOfTime), true,
+            'delta X <= 0 and delta Y >= 0');
+        deepEqual(world.movingBoxInWorld({x: 21, y: 21}, size,
+            {x: -10, y: -10}, 'boolean', lotsOfTime), true,
+            'delta X and Y <= 0');
+        deepEqual(world.movingBoxInWorld({x: -1, y: -1}, size,
+            {x: 10, y: 10}, 'boolean', lotsOfTime), true,
+            'delta X and Y >= 0');
+        size = {w: 10, h: 10};
+        deepEqual(world.movingBoxInWorld({x: -1, y: 21}, size,
+            {x: 10, y: -10}, 'boolean', lotsOfTime), true,
+            'delta X >= 0 and delta Y <= 0');
+        deepEqual(world.movingBoxInWorld({x: 21, y: -1}, size,
+            {x: -10, y: 10}, 'boolean', lotsOfTime), true,
+            'delta X <= 0 and delta Y >= 0');
+        deepEqual(world.movingBoxInWorld({x: 21, y: 21}, size,
+            {x: -10, y: -10}, 'boolean', lotsOfTime), true,
+            'delta X and Y <= 0');
+        deepEqual(world.movingBoxInWorld({x: -1, y: -1}, size,
+            {x: 10, y: 10}, 'boolean', lotsOfTime), true,
+            'delta X and Y >= 0');
+    });
+    test('Advanced moving box queries', function () {
+        return; //TODO
+        var size = {w: 10, h: 10},
+            world = new World([{
+                // Three x-axis-aligned boxes.
+                position: {x: 10, y: 0},
+                size: size,
+                collision: 'rect'
+            },{
+                position: {x: 30, y: 0},
+                size: size,
+                collision: 'rect'
+            },{
+                position: {x: 20, y: 0},
+                size: size,
+                collision: 'rect'
+            }]);
+        equal(world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, 'time', 20000000), 1000, 'Get when the box collides');
+    });
     test('World class tests', function () {
         var world = new World(testWorldObjects);
         equal(world.getObjects().length, 3);
     });
-    test('World collision tests', function () {
+    test('World collision tests (legacy)', function () {
         var world = new World(testWorldObjects),
             smallWorld = new World([{
                 position: {x: 10, y: 10},

@@ -9,6 +9,7 @@
     }
     if (require) {
         require('inheritance.js');
+        require('math2d.js');
     } // else: include through HTML tag.
     exports.World = Class.extend({
         init: function (worldObjects) {
@@ -121,7 +122,7 @@
                 
                 get: time|boolean|list|position (default is boolean)
             */
-            if (['time', 'list', 'position'].indexOf(get) !== -1) {
+            if (['list', 'position'].indexOf(get) !== -1) {
                 return 'Cant get ' + get + ' yet.';
             }
             var i,
@@ -172,7 +173,11 @@
             // Filter the result further
             result.elements = this.halfPlaneInWorld(l1_p1, l1_p2, false, result.elements);
             result.elements = this.halfPlaneInWorld(l2_p1, l2_p2, false, result.elements);
-            return !!result.elements.length;
+            if (get === 'boolean') {
+                return !!result.elements.length;
+            } else if (get === 'time') {
+                // TODO
+            }
         },
         halfPlaneInWorld: function (p1, p2, boolean, in_elements) {
             /*
@@ -189,124 +194,39 @@
                 This linear function is given by the two points p1 and p2
                 For vertical dividers, we get some special cases.
             */
-            var result = [],
-                timesX,
-                offsetX, offsetY,
+            
+            var results = [],
+                angle = Math2D.angleBetween2Points(p1, p2),
                 objects = in_elements || this.getObjects(),
                 len = objects.length,
+                i,
+                j,
+                obj,
+                boxPoints;
+            if (p1.x - p2.x === 0 && p1.y - p2.y === 0) {
+                throw new Error('Bad half plane. p1 === p2')
+            }
                 verticality = p1.x - p2.x,
                 horizontality = p1.y - p2.y,
-                side,
-                i, obj;
-            if (horizontality === 0 && verticality === 0) {
-                throw new Error('Checking an undefineable plane. p1 == p2');
-            } else if (horizontality === 0) {
-                side = verticality < 0; // side ? 'up' : 'down'
-                for (i = 0; i < len; i += 1) {
-                    obj = objects[i];
-                    if (obj.collision === 'rect') {
-                        if (side) {
-                            if (obj.position.y < p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
+            for (i = 0; i < len; i += 1) {
+                obj = objects[i];
+                boxPoints = Math2D.pointsOfBox(obj.position, obj.size);
+                for (j = 0; j < 4; j += 1) {
+                    if (Math2D.pointInHalfPlane(p1, p2, boxPoints[j])) {
+                        if (boolean) {
+                            return true;
                         } else {
-                            if (obj.position.y + obj.size.h > p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
+                            results.push(obj);
                         }
-                    }
-                }
-            } else if (verticality === 0) {
-                side = horizontality < 0; // side ? 'right' : 'left';
-                for (i = 0; i < len; i += 1) {
-                    obj = objects[i];
-                    if (obj.collision === 'rect') {
-                        if (side) {
-                            if (obj.position.x + obj.size.w > p1.x) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                        } else {
-                            if (obj.position.x < p1.x) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                // create the linear function.
-                offsetX = p1.x - p2.x;
-                offsetY = p1.y - p2.y;
-                timesX = offsetY / offsetX;
-                side = p1.x > p2.x; // side ? 'down' : 'up';
-                // y = ((x - offsetX) * timesX) + offsetY
-                // lin = function (x) {}
-                // return ('offsetX: ' + p1.x + '; offsetY: ' + p1.y + '; timesX: ' + timesX + '; side: ' + (side ? 'down' : 'up'));
-                if (side) {
-                    for (i = 0; i < len; i += 1) {
-                        obj = objects[i];
-                        if (obj.collision === 'rect') {
-                            // Lower left corner
-                            if (obj.position.y + obj.size.h > ((obj.position.x - p1.x) * timesX) + p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                            // Lower right corner
-                            if (obj.position.y + obj.size.h > (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for (i = 0; i < len; i += 1) {
-                        obj = objects[i];
-                        if (obj.collision === 'rect') {
-                            // Upper left corner
-                            if (obj.position.y < ((obj.position.x - p1.x) * timesX) + p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                            // Upper right corner
-                            if (obj.position.y < (((obj.position.x + obj.size.w) - p1.x) * timesX) + p1.y) {
-                                if (boolean) {
-                                    return true;
-                                } else {
-                                    result.push(obj);
-                                }
-                            }
-                        }
+                        break;
                     }
                 }
             }
+            
             if (boolean) {
                 return false;
             } else {
-                return result;
+                return results;
             }
         }
     });
