@@ -206,8 +206,6 @@
             if (p1.x - p2.x === 0 && p1.y - p2.y === 0) {
                 throw new Error('Bad half plane. p1 === p2')
             }
-                verticality = p1.x - p2.x,
-                horizontality = p1.y - p2.y,
             for (i = 0; i < len; i += 1) {
                 obj = objects[i];
                 boxPoints = Math2D.pointsOfBox(obj.position, obj.size);
