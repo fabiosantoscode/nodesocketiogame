@@ -38,7 +38,7 @@
                 sine,
                 cosine;
             if (angle === undefined) {
-                // Second function signature
+                // Alternate function signature
                 angle = point;
                 point = pivot;
                 pivot = {x: 0, y: 0};

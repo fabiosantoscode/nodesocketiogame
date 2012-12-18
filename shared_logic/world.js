@@ -190,13 +190,10 @@
                   /
                  p1
                 
-                The formula is to check if any part of the world (marked X above) is above the linear function dividing the half plane.
-                This linear function is given by the two points p1 and p2
-                For vertical dividers, we get some special cases.
+                Use Math2D.pointInHalfPlane to check if any point in each box is
+                in the half plane.
             */
-            
             var results = [],
-                angle = Math2D.angleBetween2Points(p1, p2),
                 objects = in_elements || this.getObjects(),
                 len = objects.length,
                 i,
