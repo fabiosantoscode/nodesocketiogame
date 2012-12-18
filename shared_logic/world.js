@@ -1,12 +1,6 @@
 (function (require, exports) {
     'use strict';
     // TODO get all these util functions on shared_logic
-    function vectorSum(a, b) {
-        return {
-            x: a.x + b.x,
-            y: a.y + b.y
-        };
-    }
     if (require) {
         require('inheritance.js');
         require('math2d.js');
@@ -83,6 +77,22 @@
                 }
             }
         },
+        polyInWorld: function (pts, boolean, inElements) {
+            // pts: counter-clockwise set of points
+            var elements = inElements || this.getObjects(),
+                len = pts.length,
+                i;
+            for (i = 0; i < len - 1; i++) {
+                elements = this.halfPlaneInWorld(
+                    pts[i], pts[i + 1], false, elements);
+            }
+            elements = this.halfPlaneInWorld(pts[pts.length - 1], pts[0], false, elements)
+            if (boolean) {
+                return !!elements.length;
+            } else {
+                return elements;
+            }
+        },
         boxInWorld: function (position, size, boolean) {
             var result = [],
                 i,
@@ -148,8 +158,8 @@
                 // Connect the upper left corners and the lower right corners
                 l1_p1 = startPosition;
                 l1_p2 = endPosition;
-                l2_p1 = vectorSum(startPosition, {x: size.w, y: size.h});
-                l2_p2 = vectorSum(endPosition, {x: size.w, y: size.h});
+                l2_p1 = Math2D.vectorAdd(startPosition, {x: size.w, y: size.h});
+                l2_p2 = Math2D.vectorAdd(endPosition, {x: size.w, y: size.h});
                 // Same corners, but swap direction
                 if (delta.x >= 0 && delta.y <= 0) {
                     tmp = l1_p1; l1_p1 = l1_p2; l1_p2 = tmp;

@@ -59,9 +59,9 @@
         deepEqual(Math2D.pointsOfBox(
             {x: 1, y: 1}, {h: 9, w: 9}), [
                 {x: 1 , y: 1},
-                {x: 10, y: 1},
                 {x: 1, y: 10},
-                {x: 10, y: 10}
+                {x: 10, y: 10},
+                {x: 10, y: 1}
             ], 'pointsOfBox');
     });
     test('Fix moving box query bugs', function () {
@@ -72,7 +72,6 @@
                 size: {w: 10, h: 10},
                 collision: 'rect'
             }]);
-        return; //TODO
         deepEqual(world.movingBoxInWorld({x: -1, y: 21}, size,
             {x: 10, y: -10}, 'boolean', lotsOfTime), true,
             'delta X >= 0 and delta Y <= 0');
@@ -100,7 +99,6 @@
             'delta X and Y >= 0');
     });
     test('Advanced moving box queries', function () {
-        return; //TODO
         var size = {w: 10, h: 10},
             world = new World([{
                 // Three x-axis-aligned boxes.
