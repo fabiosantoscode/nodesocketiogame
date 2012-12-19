@@ -73,29 +73,29 @@
                 collision: 'rect'
             }]);
         deepEqual(world.movingBoxInWorld({x: -1, y: 21}, size,
-            {x: 10, y: -10}, 'boolean', lotsOfTime), true,
+            {x: 10, y: -10}, true, lotsOfTime), true,
             'delta X >= 0 and delta Y <= 0');
         deepEqual(world.movingBoxInWorld({x: 21, y: -1}, size,
-            {x: -10, y: 10}, 'boolean', lotsOfTime), true,
+            {x: -10, y: 10}, true, lotsOfTime), true,
             'delta X <= 0 and delta Y >= 0');
         deepEqual(world.movingBoxInWorld({x: 21, y: 21}, size,
-            {x: -10, y: -10}, 'boolean', lotsOfTime), true,
+            {x: -10, y: -10}, true, lotsOfTime), true,
             'delta X and Y <= 0');
         deepEqual(world.movingBoxInWorld({x: -1, y: -1}, size,
-            {x: 10, y: 10}, 'boolean', lotsOfTime), true,
+            {x: 10, y: 10}, true, lotsOfTime), true,
             'delta X and Y >= 0');
         size = {w: 10, h: 10};
         deepEqual(world.movingBoxInWorld({x: -1, y: 21}, size,
-            {x: 10, y: -10}, 'boolean', lotsOfTime), true,
+            {x: 10, y: -10}, true, lotsOfTime), true,
             'delta X >= 0 and delta Y <= 0');
         deepEqual(world.movingBoxInWorld({x: 21, y: -1}, size,
-            {x: -10, y: 10}, 'boolean', lotsOfTime), true,
+            {x: -10, y: 10}, true, lotsOfTime), true,
             'delta X <= 0 and delta Y >= 0');
         deepEqual(world.movingBoxInWorld({x: 21, y: 21}, size,
-            {x: -10, y: -10}, 'boolean', lotsOfTime), true,
+            {x: -10, y: -10}, true, lotsOfTime), true,
             'delta X and Y <= 0');
         deepEqual(world.movingBoxInWorld({x: -1, y: -1}, size,
-            {x: 10, y: 10}, 'boolean', lotsOfTime), true,
+            {x: 10, y: 10}, true, lotsOfTime), true,
             'delta X and Y >= 0');
     });
     test('Advanced moving box queries', function () {
@@ -114,7 +114,7 @@
                 size: size,
                 collision: 'rect'
             }]);
-        equal(world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, 'time', 20000000), 1000, 'Get when the box collides');
+        equal(world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, false, 20000000), 1000, 'Get when the box collides');
     });
     test('World class tests', function () {
         var world = new World(testWorldObjects);
@@ -151,14 +151,14 @@
             {x: 330, y: 410}, // position
             {w: 10, h: 10}, // size
             {x: 20, y: 0}, // delta
-            'boolean',
+            true,
             10 * 1000),
             true, 'Moving bounding box set to hit the world.');
         equal(world.movingBoxInWorld(
             {x: 330, y: 390}, // position
             {w: 10, h: 10}, // size
             {x: 10, y: 0}, // delta
-            'boolean',
+            true,
             100),
             false, 'Moving bounding box which wont hit the world.');
     });

@@ -121,72 +121,69 @@
                 return result;
             }
         },
-        movingBoxInWorld: function (startPosition, size, delta, get, timeLimit) {
+        movingBoxInWorld: function (startPosition, size, delta, boolean, timeLimit) {
             /*
                 Collide a moving box against the world
                    __   __
                   /  | |  \
                  /  /   \  \
                 |__/     \__\
-                Cover a shape like the above ones using half plane collision.
+                Cover a shape like the above ones using polygon collision
                 
-                get: time|boolean|list|position (default is boolean)
+                If delta.x and delta.y have the same sign, it's the right shape.
+                Otherwise, it's the left shape.
+                
+                get: time|boolean|list|position|object (default is boolean)
             */
-            if (['list', 'position'].indexOf(get) !== -1) {
-                return 'Cant get ' + get + ' yet.';
+            if (!boolean) {
+                return 'Cant get full results yet.';
             }
-            var i,
-                objects = this.getObjects(),
-                len = objects.length,
-                timeLimitSeconds = timeLimit * 1000,
-                tmp,
+            var timeLimitSeconds = timeLimit * 1000,
                 endPosition = {
                     x: (+startPosition.x) + ((+delta.x) * (+timeLimitSeconds)),
                     y: (+startPosition.y) + ((+delta.y) * (+timeLimitSeconds))
                 },
-                // points
-                l1_p1, l1_p2,
-                l2_p1, l2_p2,
-                result = {},
+                // upper left, lower right points
                 min_x = Math.min(startPosition.x, endPosition.x),
                 max_x = Math.max(startPosition.x, endPosition.x) + size.w,
                 min_y = Math.min(startPosition.y, endPosition.y),
-                max_y = Math.max(startPosition.y, endPosition.y) + size.h;
+                max_y = Math.max(startPosition.y, endPosition.y) + size.h,
+                // Points for polyInWorld
+                points = [],
+                deltaSameSign = (delta.x <= 0 && delta.y <= 0) || (delta.x >= 0 && delta.y >= 0),
+                // Array of world objects we get in the end
+                results = [],
+                // returned info object
+                ret = {};
+            // Go counter-clockwise to add points to the list
             if (delta.x === 0 && delta.y === 0) {
                 return 'cant handle static boxes yet';
-            } else if ((delta.x >= 0 && delta.y <= 0) || (delta.x <= 0 && delta.y >= 0)) {
-                // Connect the upper left corners and the lower right corners
-                l1_p1 = startPosition;
-                l1_p2 = endPosition;
-                l2_p1 = Math2D.vectorAdd(startPosition, {x: size.w, y: size.h});
-                l2_p2 = Math2D.vectorAdd(endPosition, {x: size.w, y: size.h});
-                // Same corners, but swap direction
-                if (delta.x >= 0 && delta.y <= 0) {
-                    tmp = l1_p1; l1_p1 = l1_p2; l1_p2 = tmp;
-                    tmp = l2_p1; l2_p1 = l2_p2; l2_p2 = tmp;
-                }
-            } else if ((delta.x <= 0 && delta.y <= 0) || (delta.x >= 0 && delta.y >= 0)) {
-                // Connect the upper right corners and the lower left corners
-                l1_p1 = {x: startPosition.x + size.w, y: startPosition.y};
-                l1_p2 = {x: endPosition.x + size.w, y: endPosition.y};
-                l2_p1 = {x: startPosition.x, y: startPosition.y + size.h};
-                l2_p2 = {x: endPosition.x, y: endPosition.y + size.h};
-                // Likewise. In one of the cases, swap direction.
-                if (delta.x >= 0 && delta.y >= 0) {
-                    tmp = l1_p1; l1_p1 = l1_p2; l1_p2 = tmp;
-                    tmp = l2_p1; l2_p1 = l2_p2; l2_p2 = tmp;
-                }
             }
-            result.elements = this.boxInWorld(
-                {x: min_x, y: min_y},
-                {w: max_x - min_x, h: max_y - min_y});
-            // Filter the result further
-            result.elements = this.halfPlaneInWorld(l1_p1, l1_p2, false, result.elements);
-            result.elements = this.halfPlaneInWorld(l2_p1, l2_p2, false, result.elements);
-            if (get === 'boolean') {
-                return !!result.elements.length;
-            } else if (get === 'time') {
-                // TODO
+            // Start with top left (bottom left if deltas don't have the same sign).
+            if (deltaSameSign) {
+                // top left
+                points.push({x: min_x + size.w, y: min_y});
+                points.push({x: min_x, y: min_y});
+                points.push({x: min_x, y: min_y + size.h});
+                // bottom right
+                points.push({x: max_x - size.w, y: max_y});
+                points.push({x: max_x, y: max_y});
+                points.push({x: max_x, y: max_y - size.h});
+            } else {
+                // bottom left
+                points.push({x: min_x, y: max_y - size.h});
+                points.push({x: min_x, y: max_y});
+                points.push({x: min_x + size.w, y: max_y});
+                // top right
+                points.push({x: max_x, y: min_y + size.h});
+                points.push({x: max_x, y: min_y});
+                points.push({x: max_x - size.w, y: min_y});
+            }
+            results = this.polyInWorld(points, false);
+            if (boolean) {
+                return !!results.length;
+            } else {
+                return 'Not implemented';
             }
         },
         halfPlaneInWorld: function (p1, p2, boolean, in_elements) {
