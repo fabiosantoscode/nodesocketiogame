@@ -154,6 +154,9 @@
                 walkTime,
                 walkTimeDelta = (1 / (resolution || 10)) * 1000,
                 walkStep;
+            if (!timeLimit) {
+                throw new Error('movingBoxInWorld requires a time limit!');
+            }
             // Go counter-clockwise to add points to the list
             if (delta.x === 0 && delta.y === 0) {
                 return 'cant handle static boxes yet';
@@ -182,8 +185,9 @@
             if (boolean) {
                 return !!results.length;
             } else {
-                if (!results.length)
+                if (!results.length) {
                     return undefined;
+                }
             }
             ret.list = results;
             for (walkTime = -walkTimeDelta; walkTime < timeLimitMilliSeconds; walkTime += walkTimeDelta) {
