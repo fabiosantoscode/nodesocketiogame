@@ -18,6 +18,13 @@
             }
             return ang;
         },
+        predictPosition: function (position, delta, ms) {
+            var s = ms / 1000;
+            return {
+                x: (+position.x) + ((+delta.x) * (+s)),
+                y: (+position.y) + ((+delta.y) * (+s))
+            };
+        },
         halfPlaneAngle: function (p1, p2) {
             return Math2D.angleBetween2Points(p1, p2) + (Math.PI / 2);
         },
@@ -25,7 +32,7 @@
             return Math.sqrt(Math2D.vectorSqLength(v));
         },
         vectorSqLength: function (v) {
-            return sqr(Math.abs(v.x)) + sqr(Math.abs(v.y));
+            return Math.pow(Math.abs(v.x), 2) + Math.pow(Math.abs(v.y), 2);
         },
         vectorDistance: function (a, b) {
             return Math2D.vectorLength(Math2D.vectorSub(a, b));

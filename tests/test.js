@@ -113,8 +113,15 @@
                 position: {x: 20, y: 0},
                 size: size,
                 collision: 'rect'
-            }]);
-        equal(world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, false, 20000000), 1000, 'Get when the box collides');
+            }]),
+            result,
+            d;
+        deepEqual(world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, false, 0.99), undefined, 'no collision');
+        result = world.movingBoxInWorld({x: -10, y: 0}, size, {x: 10, y: 0}, false, 1.5);
+        ok(result.time > 999 && result.time < 1201, 'result time');
+        deepEqual(result.list, [world.objects[0]], 'result collision list');
+        d = Math2D.vectorDistance(result.position, world.objects[0].position);
+        ok(d < 10 && d > 0, 'result position');
     });
     test('World class tests', function () {
         var world = new World(testWorldObjects);

@@ -93,10 +93,10 @@
                 return elements;
             }
         },
-        boxInWorld: function (position, size, boolean) {
+        boxInWorld: function (position, size, boolean, inElements) {
             var result = [],
                 i,
-                objects = this.getObjects(),
+                objects = inElements || this.getObjects(),
                 obj,
                 obj_pos, obj_size,
                 len = objects.length;
@@ -121,7 +121,7 @@
                 return result;
             }
         },
-        movingBoxInWorld: function (startPosition, size, delta, boolean, timeLimit) {
+        movingBoxInWorld: function (startPosition, size, delta, boolean, timeLimit, resolution) {
             /*
                 Collide a moving box against the world
                    __   __
@@ -132,16 +132,11 @@
                 
                 If delta.x and delta.y have the same sign, it's the right shape.
                 Otherwise, it's the left shape.
-                
-                get: time|boolean|list|position|object (default is boolean)
             */
-            if (!boolean) {
-                return 'Cant get full results yet.';
-            }
-            var timeLimitSeconds = timeLimit * 1000,
+            var timeLimitMilliSeconds = timeLimit * 1000,
                 endPosition = {
-                    x: (+startPosition.x) + ((+delta.x) * (+timeLimitSeconds)),
-                    y: (+startPosition.y) + ((+delta.y) * (+timeLimitSeconds))
+                    x: (+startPosition.x) + ((+delta.x) * (+timeLimit)),
+                    y: (+startPosition.y) + ((+delta.y) * (+timeLimit))
                 },
                 // upper left, lower right points
                 min_x = Math.min(startPosition.x, endPosition.x),
@@ -154,7 +149,11 @@
                 // Array of world objects we get in the end
                 results = [],
                 // returned info object
-                ret = {};
+                ret = {},
+                // When walking to find collisions
+                walkTime,
+                walkTimeDelta = (1 / (resolution || 10)) * 1000,
+                walkStep;
             // Go counter-clockwise to add points to the list
             if (delta.x === 0 && delta.y === 0) {
                 return 'cant handle static boxes yet';
@@ -183,8 +182,19 @@
             if (boolean) {
                 return !!results.length;
             } else {
-                return 'Not implemented';
+                if (!results.length)
+                    return undefined;
             }
+            ret.list = results;
+            for (walkTime = -walkTimeDelta; walkTime < timeLimitMilliSeconds; walkTime += walkTimeDelta) {
+                walkStep = Math2D.predictPosition(startPosition, delta, walkTime);
+                if (this.boxInWorld(walkStep, size, false, results).length) {
+                    ret.position = walkStep;
+                    ret.time = (walkTime + walkTimeDelta);
+                    return ret;
+                }
+            }
+            throw new Error;
         },
         halfPlaneInWorld: function (p1, p2, boolean, in_elements) {
             /*
