@@ -1,6 +1,5 @@
 (function (require, exports) {
     'use strict';
-    // TODO get all these util functions on shared_logic
     if (require) {
         require('inheritance.js');
         require('math2d.js');
@@ -189,7 +188,11 @@
                     return undefined;
                 }
             }
-            ret.list = results;
+            ret = {
+                list: results,
+                position: undefined,
+                time: undefined,
+            };
             for (walkTime = -walkTimeDelta; walkTime < timeLimitMilliSeconds; walkTime += walkTimeDelta) {
                 walkStep = Math2D.predictPosition(startPosition, delta, walkTime);
                 if (this.boxInWorld(walkStep, size, false, results).length) {
@@ -198,7 +201,7 @@
                     return ret;
                 }
             }
-            throw new Error;
+            return undefined;
         },
         halfPlaneInWorld: function (p1, p2, boolean, in_elements) {
             /*

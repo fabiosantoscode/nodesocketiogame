@@ -4,7 +4,7 @@ jQuery(function ($) {
         socket = io.connect('http://' + hostname + ':9090'),
         //Classes
         Class = window.Class,
-        Movement,
+        Movement = window.Movement,
         Entity,
         Enemy,
         Player,
@@ -157,11 +157,6 @@ jQuery(function ($) {
                 }
             });
     }
-    Movement = Class.extend({
-        startedMoving: null, //if null then stopped
-        position: {x: 0, y: 0},
-        delta: {x: 0, y: 0},
-    });
     Entity = Movement.extend({
         init: function (position) {
             this.position.x = position.x || 0;
@@ -206,7 +201,7 @@ jQuery(function ($) {
             var timestamp = +new Date(),
                 delta,
                 stopWhere,
-                that = this;
+                worldQueryResult;
             if (this.wasMoving) { // stop
                 stopWhere = predictPosition(this.position, this.delta, timestamp - this.startedMoving);
                 socket.emit('player-move', {
@@ -226,8 +221,7 @@ jQuery(function ($) {
                     x: playerSpeed * side,
                     y: 0
                 };
-                that.update(this.position, delta, timestamp, true);
-                world.movingBoxInWorld(this.position, {w: 32, h: 64}, delta);
+                this.update(this.position, delta, timestamp, true);
             }
             this.wasMoving = side;
         }
