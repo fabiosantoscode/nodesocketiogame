@@ -52,25 +52,6 @@ jQuery(function ($) {
         // debug stuff
         debugMode = !!$('.debuginfo').length,
         $pingDisplay = $('.debuginfo.ping');
-    function vectorSum(a, b) {
-        return {
-            x: a.x + b.x,
-            y: a.y + b.y
-        };
-    }
-    function vectorMul(a, b) {
-        return {
-            x: a.x * (b.x || b),
-            y: a.y * (b.y || b)
-        };
-    }
-    function predictPosition(position, delta, ms) { // TODO add acceleration
-        var s = (ms || 1000) / 1000;
-        return {
-            x: (+position.x) + ((+delta.x) * (+s)),
-            y: (+position.y) + ((+delta.y) * (+s))
-        };
-    }
     playerSprite.image.src = '/media/bacano.png';
     /*
         Entity class:
@@ -202,8 +183,8 @@ jQuery(function ($) {
                 delta,
                 stopWhere,
                 worldQueryResult;
-            if (this.wasMoving) { // stop
-                stopWhere = predictPosition(this.position, this.delta, timestamp - this.startedMoving);
+            if (this.wasMoving) { // stopping
+                stopWhere = Math2D.predictPosition(this.position, this.delta, timestamp - this.startedMoving);
                 socket.emit('player-move', {
                     position: stopWhere,
                     direction: 0,
@@ -267,30 +248,30 @@ jQuery(function ($) {
                 if (enemies.hasOwnProperty(enemyID)) {
                     enemy = enemies[enemyID];
                     if (enemy.startedMoving) {
-                        predictedPosition = predictPosition(enemy.position,
+                        predictedPosition = Math2D.predictPosition(enemy.position,
                             enemy.delta, time - enemy.startedMoving);
 
                     } else {
                         predictedPosition = enemy.position;
                     }
-                    deCentered = vectorSum(enemy.sprite.center, predictedPosition);
+                    deCentered = Math2D.vectorAdd(enemy.sprite.center, predictedPosition);
                     ctx.drawImage(enemy.sprite.image, deCentered.x, deCentered.y);
                 }
             }
             if (player) {
                 if (player.startedMoving) {
-                    predictedPosition = predictPosition(player.position,
+                    predictedPosition = Math2D.predictPosition(player.position,
                         player.delta, time - player.startedMoving);
                 } else {
                     predictedPosition = player.position;
                 }
-                deCentered = vectorSum(player.sprite.center, predictedPosition);
+                deCentered = Math2D.vectorAdd(player.sprite.center, predictedPosition);
                 ctx.drawImage(player.sprite.image, deCentered.x, deCentered.y);
             }
             if (world) {
                 world.drawWorld(ctx);
             }
-            requestAnimationFrame(loop, gameCanvas);
+            requestAnimationFrame(loop, gameCanvas); // schedule next frame draw
         };
         loop();
     }
@@ -368,7 +349,7 @@ jQuery(function ($) {
                 };
                 socket.on('debug-key', function (data) {
                     var uid = +new Date();
-                    data.whereTo = vectorSum(data.position, vectorMul(data.delta, 0.1));
+                    data.whereTo = Math2D.vectorAdd(data.position, Math2D.vectorMul(data.delta, 0.1));
                     redrawList[uid] = data;
                     redrawDebug();
                     setTimeout(function () {

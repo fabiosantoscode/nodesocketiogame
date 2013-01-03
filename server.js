@@ -6,10 +6,12 @@
             httport: 8080,
             socketioport: 9090,
             msgLimit: 100,
+            tickInterval: 5000,
             lag: 100 // half ping
         },
         express = require('express'),
         http = require('http'),
+        Math2D = require('./shared_logic/math2d.js').Math2D,
         // _ = require('./underscore.js'),
         // url = require('url'),
         app = express(),
@@ -29,21 +31,6 @@
         .get('/', function (req, res) {
             res.render('../index.jade', {});
         });
-    function predictPosition(position, delta, ms, ping) {
-        var s = ((ms + (ping || 0)) || 1000) / 1000;
-        return {
-            x: (+position.x) + ((+delta.x) * (+s)),
-            y: (+position.y) + ((+delta.y) * (+s))
-        };
-    }
-    function sqr(a) {
-        return a * a;
-    }
-    function distance(a, b) {
-        var xdist = Math.abs(a.x - b.x),
-            ydist = Math.abs(a.y - b.y);
-        return Math.sqrt(sqr(xdist) + sqr(ydist));
-    }
     io.sockets.on('connection', function (socket) {
         var playerPosition = {x: 0, y: worldFloor},
             playerSpeed = 350.0, // pixels per second.
@@ -70,7 +57,6 @@
         };
         socket.on('ready', function (callback) {
             pinger();
-            socket.broadcast.emit('message', {'announce': 'Player ' + playerID + ' has connected'});
             socket.broadcast.emit('pawn-create', createData);
             callback(createData);
             otherSockets.emit('please-inform-me', function (data) {
@@ -102,9 +88,9 @@
                         // calculate stop position using delta vector.
                         // Then verify given against expected
                         dt = (timestamp - playerStartMove);
-                        expectedPosition = predictPosition(playerPosition, playerDelta, dt, playerPing);
-                        if (distance(expectedPosition, data.position) <
-                                distance(playerPosition, expectedPosition) * 0.1) { // OK to move 10% faster
+                        expectedPosition = Math2D.predictPosition(playerPosition, playerDelta, dt + playerPing);
+                        if (Math2D.vectorLength(expectedPosition, data.position) <
+                                Math2D.vectorLength(playerPosition, expectedPosition) * 0.1) { // OK to move 10% faster
                             playerPosition = data.position;
                         } else {
                             socket.emit('player-position-correct', {
@@ -146,7 +132,6 @@
             socket.emit('ping-event', playerPing);
         };
         socket.on('disconnect', function () {
-            socket.broadcast.emit('message', {'announce': 'Player ' + playerID + ' was disconnected'});
             socket.broadcast.emit('pawn-remove', playerID);
             otherSockets.removeListener('please-inform-me', informOtherSockets);
             globalUpdateEvent.removeListener('tick', globalUpdateEventHandler);
@@ -165,7 +150,7 @@
                 globalUpdateData.push(data);
             });
         }
-        setInterval(tickGlobalEvents, 5000);
+        setInterval(tickGlobalEvents, config.tickInterval);
     }());
     debugInfoChannel.on('key', function (data) {
         // the "key frames"

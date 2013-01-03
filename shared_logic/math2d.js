@@ -1,7 +1,7 @@
-(function (require, exports) {
+(function () {
     'use strict';
     var Math2D;
-    Math2D = exports.Math2D = {
+    Math2D = {
         pointInHalfPlane: function (p1, p2, point) {
             var angdiff = (Math2D.halfPlaneAngle(p1, p2)
                 - Math2D.halfPlaneAngle(p1, point));
@@ -52,6 +52,12 @@
                 y: a.y - b.y
             };
         },
+        vectorMul: function (a, b) {
+            return {
+                x: a.x * b.x,
+                y: a.y * b.y
+            };
+        },
         angleBetween2Points: function (a, b) {
             return Math.atan2(b.x - a.x, b.y - a.y);
         },
@@ -83,4 +89,9 @@
             ];
         }
     };
-}(this.require, (this.module && this.module.exports) || window));
+    try {
+        module.exports.Math2D = Math2D;
+    } catch (e) {
+        window.Math2D = Math2D;
+    }
+}());
