@@ -47,7 +47,7 @@
     io.sockets.on('connection', function (socket) {
         var playerPosition = {x: 0, y: worldFloor},
             playerSpeed = 350.0, // pixels per second.
-            playerStartMove = null,
+            playerStartMove = undefined,
             playerDelta = {x: 0, y: 0},
             createData,
             latestMove = 0,
@@ -98,13 +98,13 @@
                         delta: playerDelta
                     });
                 } else { // stopping
-                    if (playerStartMove) {
+                    if (playerStartMove !== undefined) {
                         // calculate stop position using delta vector.
                         // Then verify given against expected
                         dt = (timestamp - playerStartMove);
                         expectedPosition = predictPosition(playerPosition, playerDelta, dt, playerPing);
                         if (distance(expectedPosition, data.position) <
-                                distance(playerPosition, expectedPosition) * 0.01) {
+                                distance(playerPosition, expectedPosition) * 0.1) { // OK to move 10% faster
                             playerPosition = data.position;
                         } else {
                             socket.emit('player-position-correct', {
@@ -115,7 +115,7 @@
                             playerPosition = expectedPosition;
                         }
                         playerDelta = {x: 0, y: 0};
-                        playerStartMove = null;
+                        playerStartMove = undefined;
                         // Send debug info
                         debugInfoChannel.emit('key', {
                             position: playerPosition,
