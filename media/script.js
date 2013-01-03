@@ -184,7 +184,7 @@ jQuery(function ($) {
                 stopWhere,
                 worldQueryResult;
             if (this.wasMoving) { // stopping
-                stopWhere = Math2D.predictPosition(this.position, this.delta, timestamp - this.startedMoving);
+                stopWhere = this.currentPosition(timestamp);
                 socket.emit('player-move', {
                     position: stopWhere,
                     direction: 0,
@@ -248,8 +248,7 @@ jQuery(function ($) {
                 if (enemies.hasOwnProperty(enemyID)) {
                     enemy = enemies[enemyID];
                     if (enemy.startedMoving) {
-                        predictedPosition = Math2D.predictPosition(enemy.position,
-                            enemy.delta, time - enemy.startedMoving);
+                        predictedPosition = enemy.currentPosition(time);
 
                     } else {
                         predictedPosition = enemy.position;
@@ -260,8 +259,7 @@ jQuery(function ($) {
             }
             if (player) {
                 if (player.startedMoving) {
-                    predictedPosition = Math2D.predictPosition(player.position,
-                        player.delta, time - player.startedMoving);
+                    predictedPosition = player.currentPosition(time);
                 } else {
                     predictedPosition = player.position;
                 }

@@ -30,7 +30,7 @@
         },
         currentPosition: function (atTime) {
             atTime = atTime || +new Date();
-            return this.predictPosition(this.atTime - this.startedMoving);
+            return this.predictPosition(atTime - this.startedMoving);
         },
         predictPosition: function (time) {
             if (this.startedMoving){

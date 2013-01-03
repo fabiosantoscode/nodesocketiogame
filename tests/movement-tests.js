@@ -19,6 +19,13 @@
         entity.startedMoving = +new Date();
         deepEqual(entity.predictPosition(1000), {x: 1, y: 0});
     });
+    test('current position', function () {
+        var entity = movementFactory();
+        entity.delta.x = 1;
+        entity.startedMoving = 1000;
+        deepEqual(entity.currentPosition(1000), {x: 0, y: 0});
+        deepEqual(entity.currentPosition(2000), {x: 1, y: 0});
+    });
     test('get expected stop data', function () {
         var entity = movementFactory();
         entity.delta = {x: 10, y: 0};
