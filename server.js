@@ -37,7 +37,6 @@
             playerStartMove = undefined,
             playerDelta = {x: 0, y: 0},
             createData,
-            latestMove = 0,
             informOtherSockets,
             playerPing = 100, // half a ping
             pinger,
@@ -71,7 +70,6 @@
                 dt,
                 expectedPosition,
                 didCorrect;
-            latestMove = data.timestamp;
             induceLag(function () {
                 timestamp = +new Date();
             }, function () {
@@ -111,7 +109,7 @@
                     }
                 }
                 eventData = {
-                    timestamp: timestamp,
+                    startedMoving: timestamp,
                     position: playerPosition,
                     delta: playerDelta,
                     id: playerID

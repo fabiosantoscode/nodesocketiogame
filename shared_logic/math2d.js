@@ -58,6 +58,9 @@
                 y: a.y * b.y
             };
         },
+        vectorBool: function (a) {
+            return a.x || a.y;
+        },
         angleBetween2Points: function (a, b) {
             return Math.atan2(b.x - a.x, b.y - a.y);
         },

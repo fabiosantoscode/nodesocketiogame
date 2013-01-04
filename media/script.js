@@ -143,12 +143,14 @@ jQuery(function ($) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
         },
-        update: function (position, delta, startedMoving, autoStop) {
-            this.position = position;
-            this.delta = delta;
-            this.startedMoving = startedMoving;
-            if (autoStop && (!(delta.x || delta.y))) {
-                this.stop(position);
+        updateFromPacket: function (data, dumb) {
+            this.position = data.position;
+            this.delta = data.delta;
+            this.startedMoving = data.startedMoving;
+            if (!dumb) {
+                if (!Math2D.vectorBool(this.delta)) {
+                    this.stop(data.position);
+                }
             }
         },
         sprite: null,
@@ -188,7 +190,6 @@ jQuery(function ($) {
                 socket.emit('player-move', {
                     position: stopWhere,
                     direction: 0,
-                    timestamp: timestamp
                 });
                 delta = this.delta;
                 this.stop(stopWhere);
@@ -196,13 +197,15 @@ jQuery(function ($) {
                 socket.emit('player-move', {
                     position: this.position,
                     direction: side,
-                    timestamp: timestamp
                 });
                 delta = {
                     x: playerSpeed * side,
                     y: 0
                 };
-                this.update(this.position, delta, timestamp, true);
+                this.updateFromPacket({
+                    delta: delta,
+                    startedMoving: timestamp,
+                    position: this.position});
             }
             this.wasMoving = side;
         }
@@ -282,9 +285,10 @@ jQuery(function ($) {
             });
             socket.on('pawn-move', function (data) {
                 var enemy = enemiesList[data.id];
-                if (enemy) {
-                    enemy.update(data.position, data.delta, data.timestamp, true);
+                if (enemy === undefined) {
+                    enemy = new Enemy(data.position)
                 }
+                enemy.updateFromPacket(data);
             });
             socket.on('pawn-remove', function (id) {
                 delete enemiesList[id];
