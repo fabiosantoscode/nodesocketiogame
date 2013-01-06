@@ -143,14 +143,30 @@ jQuery(function ($) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
         },
+        partialUpdate: function (data, dumb) {
+            var partialUpdateVector = function (vec, own) {
+                if (vec) {
+                    own.x = vec.x === undefined ? own.x : vec.x;
+                    own.y = vec.y === undefined ? own.y : vec.y;
+                }
+            }
+            partialUpdateVector(this.position, data.position);
+            partialUpdateVector(this.delta, data.delta);
+            if (!dumb) {
+                this.autoStop(data.position, data.delta);
+            }
+        },
         updateFromPacket: function (data, dumb) {
             this.position = data.position;
             this.delta = data.delta;
             this.startedMoving = data.startedMoving;
             if (!dumb) {
-                if (!Math2D.vectorBool(this.delta)) {
-                    this.stop(data.position);
-                }
+                this.autoStop(data.position, data.delta);
+            }
+        },
+        autoStop: function (position, delta) {
+            if (!Math2D.vectorBool(delta)) {
+                this.stop(position);
             }
         },
         sprite: null,
