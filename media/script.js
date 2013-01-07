@@ -5,7 +5,7 @@ jQuery(function ($) {
         //Classes
         Class = window.Class,
         Movement = window.Movement,
-        Entity,
+        ClientEntity,
         Enemy,
         Player,
         //Pawns
@@ -27,7 +27,7 @@ jQuery(function ($) {
             w: 640,
             h: 480
         },
-        // For compensating timestamp calculations.
+        // For compensating timestamp calculations. Reasonable default.
         ownPing = undefined,
         gameCanvas = document.getElementById('gamecanvas'),
         gameCanvasContext = gameCanvas.getContext('2d'),
@@ -55,10 +55,6 @@ jQuery(function ($) {
         debugMode = !!$('.debuginfo').length,
         $pingDisplay = $('.debuginfo.ping');
     playerSprite.image.src = '/media/bacano.png';
-    /*
-        Entity class:
-            Broadcasted to all players who have it within their Camera's range.
-    */
     function setUpKeys(player) {
         var pressedKeys = 0,
             sides,
@@ -140,43 +136,13 @@ jQuery(function ($) {
                 }
             });
     }
-    function compensateForPing(packet, ping) {
-        var compensation;
-        compensation = ping || 0;
-        compensation += packet.upstreamPing || 0;
-        if (packet.startedMoving) {
-            packet.startedMoving -= compensation;
-        } else {
-            packet.startedMoving = +new Date() - compensation;
-        }
-        return packet;
-    }
-    Entity = Movement.extend({
-        init: function (position) {
-            this.position.x = position.x || 0;
-            this.position.y = position.y || 0;
-        },
-        partialUpdate: function (data, tellServer) {
-            this._super(data);
-            if (tellServer) {
-                this.tellServer();
-            }
-        },
-        updateFromPacket: function (data) {
-            data = compensateForPing(data, ownPing);
-            this.updateFromLocalData(data, false);
-        },
-        updateFromLocalData: function (data, tellServer) {
-            this.partialUpdate(data, tellServer);
-        },
-        stop: function (where) {
-            // TODO calculate stop position when accel is implemented.
-            this.position = where;
-            this.delta = {x: 0, y: 0};
-            this.startedMoving = null;
+    ClientEntity = Entity.extend({
+        getPing: function () {
+            // The Entity class is out of this closure, but it needs to know the ping.
+            return ownPing;
         }
     });
-    Player = Entity.extend({
+    Player = ClientEntity.extend({
         sprite: {
             image: playerSprite.image,
             center: playerSprite.center
@@ -217,7 +183,7 @@ jQuery(function ($) {
                     x: playerSpeed * side,
                     y: 0
                 };
-                this.updateFromLocalData({
+                this.update({
                     delta: delta,
                     startedMoving: timestamp,
                     position: this.position});
@@ -225,7 +191,7 @@ jQuery(function ($) {
             this.wasMoving = side;
         }
     });
-    Enemy = Entity.extend({
+    Enemy = ClientEntity.extend({
         sprite: {
             image: playerSprite.image,
             center: playerSprite.center
@@ -303,7 +269,7 @@ jQuery(function ($) {
                 if (enemy === undefined) {
                     enemy = new Enemy(data.position)
                 }
-                enemy.updateFromPacket(data);
+                enemy.update(data);
             });
             socket.on('pawn-remove', function (id) {
                 delete enemiesList[id];
