@@ -38,6 +38,25 @@
             } else {
                 return this.position;
             }
+        },
+        partialUpdate: function (data) {
+            if (data.position || data.delta) {
+                this.position = this.currentPosition();
+                this.startedMoving = data.startedMoving;
+                if (!this.startedMoving && Math2D.vectorBool(data.delta)) {
+                    this.startedMoving = +new Date();
+                }
+            } else {
+                return;
+            }
+            if (data.position) {
+                this.position.x = data.position.x === undefined ? this.position.x : data.position.x;
+                this.position.y = data.position.y === undefined ? this.position.y : data.position.y;
+            }
+            if (data.delta) {
+                this.delta.x = data.delta.x === undefined ? this.delta.x : data.delta.x;
+                this.delta.y = data.delta.y === undefined ? this.delta.y : data.delta.y;
+            }
         }/*,
         onExpectedStop: function (callback, world) {
             this.startExpectedStopEventLoop();

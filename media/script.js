@@ -156,33 +156,19 @@ jQuery(function ($) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
         },
-        partialUpdate: function (data, dumb) {
-            var partialUpdateVector = function (vec, own) {
-                if (vec) {
-                    own.x = vec.x === undefined ? own.x : vec.x;
-                    own.y = vec.y === undefined ? own.y : vec.y;
-                }
-            }
-            partialUpdateVector(data.position, this.position);
-            partialUpdateVector(data.delta, this.delta);
-            if (!dumb) {
-                this.autoStop(data.position, data.delta);
+        partialUpdate: function (data, tellServer) {
+            this._super(data);
+            if (tellServer) {
+                this.tellServer();
             }
         },
-        updateFromPacket: function (data, dumb) {
+        updateFromPacket: function (data) {
             data = compensateForPing(data, ownPing);
-            this.updateFromLocalData(data, dumb);
+            this.updateFromLocalData(data, false);
         },
-        updateFromLocalData: function (data, dumb) {
-            this.startedMoving = data.startedMoving;
-            this.partialUpdate(data, dumb);
+        updateFromLocalData: function (data, tellServer) {
+            this.partialUpdate(data, tellServer);
         },
-        autoStop: function (position, delta) {
-            if (!Math2D.vectorBool(delta)) {
-                this.stop(position);
-            }
-        },
-        sprite: null,
         stop: function (where) {
             // TODO calculate stop position when accel is implemented.
             this.position = where;
