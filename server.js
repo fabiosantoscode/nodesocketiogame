@@ -112,7 +112,8 @@
                     startedMoving: timestamp,
                     position: playerPosition,
                     delta: playerDelta,
-                    id: playerID
+                    id: playerID,
+                    upstreamPing: playerPing
                 };
                 socket.broadcast.emit('pawn-move', eventData);
             })();

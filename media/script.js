@@ -27,6 +27,8 @@ jQuery(function ($) {
             w: 640,
             h: 480
         },
+        // For compensating timestamp calculations.
+        ownPing = undefined,
         gameCanvas = document.getElementById('gamecanvas'),
         gameCanvasContext = gameCanvas.getContext('2d'),
         debugCanvas = document.getElementById('debugcanvas'),
@@ -138,6 +140,17 @@ jQuery(function ($) {
                 }
             });
     }
+    function compensateForPing(packet, ping) {
+        var compensation;
+        compensation = ping || 0;
+        compensation += packet.upstreamPing || 0;
+        if (packet.startedMoving) {
+            packet.startedMoving -= compensation;
+        } else {
+            packet.startedMoving = +new Date() - compensation;
+        }
+        return packet;
+    }
     Entity = Movement.extend({
         init: function (position) {
             this.position.x = position.x || 0;
@@ -150,19 +163,19 @@ jQuery(function ($) {
                     own.y = vec.y === undefined ? own.y : vec.y;
                 }
             }
-            partialUpdateVector(this.position, data.position);
-            partialUpdateVector(this.delta, data.delta);
+            partialUpdateVector(data.position, this.position);
+            partialUpdateVector(data.delta, this.delta);
             if (!dumb) {
                 this.autoStop(data.position, data.delta);
             }
         },
         updateFromPacket: function (data, dumb) {
-            this.position = data.position;
-            this.delta = data.delta;
+            data = compensateForPing(data, ownPing);
+            this.updateFromLocalData(data, dumb);
+        },
+        updateFromLocalData: function (data, dumb) {
             this.startedMoving = data.startedMoving;
-            if (!dumb) {
-                this.autoStop(data.position, data.delta);
-            }
+            this.partialUpdate(data, dumb);
         },
         autoStop: function (position, delta) {
             if (!Math2D.vectorBool(delta)) {
@@ -218,7 +231,7 @@ jQuery(function ($) {
                     x: playerSpeed * side,
                     y: 0
                 };
-                this.updateFromPacket({
+                this.updateFromLocalData({
                     delta: delta,
                     startedMoving: timestamp,
                     position: this.position});
@@ -320,6 +333,7 @@ jQuery(function ($) {
                     .text(text));
             };
             socket.on('ping-event', function (ping) {
+                ownPing = ping;
                 socket.emit('pong-event');
                 $pingDisplay.text('Ping: ' + ping);
             });
