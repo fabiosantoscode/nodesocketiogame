@@ -43,7 +43,7 @@
             if (data.position || data.delta) {
                 this.position = this.currentPosition();
                 this.startedMoving = data.startedMoving;
-                if (!this.startedMoving && Math2D.vectorBool(data.delta)) {
+                if (!this.startedMoving && data.delta && Math2D.vectorBool(data.delta)) {
                     this.startedMoving = +new Date();
                 }
             } else {

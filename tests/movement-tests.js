@@ -6,12 +6,24 @@
                 size: {h: 100, w: 100},
                 collision: 'rect'
             }]),
-        movementFactory = function (position, size) {
-            return new Movement(
+        movementFactory = function (position, size, delta) {
+            var ret = new Movement(
                 position || {x: 0, y: 0},
                 size || {h: 10, w: 10});
+            ret.delta = delta || {x: 0, y: 0};
+            return ret;
         };
     window.SetMovementWorld(world);
+    test('partial update', function () {
+        var entity = movementFactory(undefined, undefined, {x: 10, y: 10});
+        entity.partialUpdate({delta: {x: undefined, y: -10}});
+        deepEqual(entity.delta, {x: 10, y: -10});
+        entity.partialUpdate({position: {x: 20, y: undefined}});
+        equal(entity.position.x, 20);
+        ok(entity.position.y !== undefined)
+        entity.partialUpdate({delta: {x: 10}, startedMoving: 1000});
+        deepEqual(entity.startedMoving, 1000);
+    });
     test('predict position', function () {
         var entity = movementFactory();
         deepEqual(entity.predictPosition(1000), entity.position);
