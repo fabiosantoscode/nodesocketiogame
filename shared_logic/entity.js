@@ -1,6 +1,12 @@
 (function () {
     'use strict';
-    var Entity;
+    var Entity,
+        Movement;
+    try {
+        Movement = require('./movement.js').Movement;
+    } catch (e) {
+        Movement = window.Movement;
+    }
     /*
         Entity class:
             Broadcasted to all players who have it within their Camera's range.
