@@ -12,6 +12,7 @@
         express = require('express'),
         http = require('http'),
         Math2D = require('./shared_logic/math2d.js').Math2D,
+        Entity = require('./shared_logic/entity.js').Entity,
         // _ = require('./underscore.js'),
         // url = require('url'),
         app = express(),

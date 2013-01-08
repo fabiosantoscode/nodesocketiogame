@@ -1,9 +1,11 @@
-(function (require, exports) {
+(function () {
     'use strict';
-    if (require) {
-        require('./shared_logic/inheritance.js');
-        require('./shared_logic/math2d.js');
-        require('./shared_logic/EventEmitter.js');
+    try {
+        require('./inheritance.js');
+        require('./math2d.js');
+        require('./eventemitter.js');
+    } catch (e) {
+        // If in browser, appropriate stuff has already been included.
     }
     var world;
     exports.SetMovementWorld = function (newWorld) {
@@ -85,4 +87,4 @@
             }
         }*/
     });
-}(this.require, (this.module && this.module.exports) || window));
+}());
