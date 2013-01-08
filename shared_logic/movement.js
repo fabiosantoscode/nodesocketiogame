@@ -1,15 +1,19 @@
 (function () {
     'use strict';
-    try {
-        require('./inheritance.js');
-        require('./math2d.js');
-        require('./eventemitter.js');
-    } catch (e) {
-        // If in browser, appropriate stuff has already been included.
-    }
     var world,
         SetMovementWorld,
-        Movement;
+        Movement,
+        Math2D,
+        EventEmitter;
+    try {
+        require('./inheritance.js');
+        Math2D = require('./math2d.js').Math2D;
+        EventEmitter = require('./eventemitter.js').EventEmitter;
+    } catch (e) {
+        // If in browser, appropriate stuff has already been included.
+        Math2D = window.Math2D;
+        EventEmitter = window.EventEmitter;
+    }
     SetMovementWorld = function (newWorld) {
         world = newWorld;
     };
