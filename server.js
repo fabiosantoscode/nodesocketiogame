@@ -103,7 +103,7 @@
                     player.partialUpdate({
                         delta: {x: +data.direction * playerSpeed},
                         startedMoving: +new Date() - playerPing
-                    });
+                    }, true);
                 } else { // stopping
                     if (player.startedMoving !== undefined) {
                         // calculate stop position using delta vector.
@@ -124,7 +124,7 @@
                         player.partialUpdate({
                             delta: {x: 0, y: 0},
                             position: stopWhere
-                        }); // TODO just use the second argument to tell the clients.
+                        }, true);
                     }
                 }
                 // Send debug info
@@ -133,13 +133,6 @@
                     delta: player.delta,
                     wrongPosition: didCorrect && data.position
                 });
-                eventData = {
-                    position: player.position,
-                    delta: player.delta,
-                    id: player.id,
-                    upstreamPing: playerPing
-                };
-                socket.broadcast.emit('pawn-move', eventData);
             })();
         });
         pinger = function () {
