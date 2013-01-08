@@ -85,49 +85,27 @@
             globalUpdateEvent.on('tick', globalUpdateEventHandler);
         });
         socket.on('player-move', function (data) {
-            var timestamp,
-                eventData,
-                stopWhere,
-                dt,
-                expectedPosition,
-                didCorrect;
+            var timestamp, stopping;
             induceLag(function () {
                 timestamp = +new Date();
             }, function () {
-                if (data.direction) {
-                    player.partialUpdate({
-                        delta: {x: +data.direction * playerSpeed},
-                        startedMoving: +new Date() - playerPing
-                    }, true);
-                } else { // stopping
-                    if (player.startedMoving !== undefined) {
-                        // calculate stop position using delta vector.
-                        // Then verify given against expected
-                        dt = (timestamp - player.startedMoving);
-                        expectedPosition = Math2D.predictPosition(player.position, player.delta, dt + playerPing);
-                        if (Math2D.vectorLength(expectedPosition, data.position) <
-                                Math2D.vectorLength(player.position, expectedPosition) * 0.1) { // OK to move 10% faster
-                            stopWhere = data.position;
-                        } else {
-                            socket.emit('player-position-correct', {
-                                expected: expectedPosition,
-                                position: data.position
-                            });
-                            didCorrect = true;
-                            stopWhere = expectedPosition;
-                        }
-                        player.partialUpdate({
-                            delta: {x: 0, y: 0},
-                            position: stopWhere
-                        }, true);
-                    }
+                if (player.startedMoving && !data.direction ) { // if stopping
+                    stopping = true;
                 }
-                // Send debug info
-                debugInfoChannel.emit('key', {
-                    position: player.position,
-                    delta: player.delta,
-                    wrongPosition: didCorrect && data.position
-                });
+                player.partialUpdate({
+                    delta: {x: +data.direction * playerSpeed},
+                    startedMoving: timestamp,
+                }, true);
+                if (stopping) {
+                    socket.emit('player-position-correct', {
+                        expected: player.currentPosition(timestamp)
+                    });
+                    // Send debug info
+                    debugInfoChannel.emit('key', {
+                        position: player.position,
+                        delta: player.delta,
+                        wrongPosition: data.position});
+                }
             })();
         });
         pinger = function () {
