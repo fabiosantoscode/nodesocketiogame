@@ -37,6 +37,17 @@
         init: function(position, id) {
             this.position = position;
             this.id = id;
+        },
+        tellPeers: function () {
+            var packet = {
+                    position: this.position,
+                    delta: this.delta,
+                    id: this.id,
+                    upstreamPing: this.getPing()
+                },
+                event;
+            this.getSocket().broadcast.emit(this.remoteCreated ? 'pawn-move' : 'pawn-create', packet);
+            this.remoteCreated = true;
         }
     });
     io.sockets.on('connection', function (socket) {
@@ -53,24 +64,8 @@
             position: player.position,
             id: player.id
         };
-        player.tellPeers = function () {
-            var packet = {
-                    position: this.position,
-                    delta: this.delta,
-                    id: this.id,
-                    upstreamPing: playerPing
-                },
-                event;
-            if (this.remoteCreated) {
-                socket.broadcast.emit('pawn-move', packet);
-            } else {
-                socket.broadcast.emit('pawn-create', packet);
-                this.remoteCreated = true;
-            }
-        }
-        player.getPing = function () {
-            return playerPing;
-        }
+        player.getPing = function () {return playerPing;}
+        player.getSocket = function () {return socket;}
         globalUpdateEventHandler = function () {
         };
         informOtherSockets = function (callback) {
