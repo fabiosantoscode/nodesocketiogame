@@ -1,17 +1,23 @@
 (function () {
     'use strict';
+    var world,
+        SetMovementWorld,
+        Movement,
+        Math2D,
+        EventEmitter;
     try {
         require('./inheritance.js');
-        require('./math2d.js');
-        require('./eventemitter.js');
+        Math2D = require('./math2d.js').Math2D;
+        EventEmitter = require('./eventemitter.js').EventEmitter;
     } catch (e) {
         // If in browser, appropriate stuff has already been included.
+        Math2D = window.Math2D;
+        EventEmitter = window.EventEmitter;
     }
-    var world;
-    exports.SetMovementWorld = function (newWorld) {
+    SetMovementWorld = function (newWorld) {
         world = newWorld;
     };
-    exports.Movement = Class.extend({
+    Movement = Class.extend({
         startedMoving: undefined, //if undefined then stopped
         position: {x: 0, y: 0},
         delta: {x: 0, y: 0},
@@ -87,4 +93,11 @@
             }
         }*/
     });
+    try {
+        module.exports.Movement = Movement;
+        module.exports.SetMovementWorld = SetMovementWorld;
+    } catch (e) {
+        window.Movement = Movement;
+        window.SetMovementWorld = SetMovementWorld;
+    }
 }());

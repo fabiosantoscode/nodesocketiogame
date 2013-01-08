@@ -13,6 +13,7 @@
         http = require('http'),
         Math2D = require('./shared_logic/math2d.js').Math2D,
         Entity = require('./shared_logic/entity.js').Entity,
+        Pawn,
         // _ = require('./underscore.js'),
         // url = require('url'),
         app = express(),
@@ -32,27 +33,50 @@
         .get('/', function (req, res) {
             res.render('../index.jade', {});
         });
+    Pawn = Entity.extend({
+        init: function(position, id) {
+            this.position = position;
+            this.id = id;
+        }
+    });
     io.sockets.on('connection', function (socket) {
-        var playerPosition = {x: 0, y: worldFloor},
+        var player,
             playerSpeed = 350.0, // pixels per second.
-            playerStartMove = undefined,
-            playerDelta = {x: 0, y: 0},
             createData,
             informOtherSockets,
             playerPing = 100, // half a ping
             pinger,
             globalUpdateEventHandler;
         playerID += 1;
+        player = new Pawn({x: 0, y: worldFloor}, playerID);
         createData = {
-            position: playerPosition,
-            id: playerID
+            position: player.position,
+            id: player.id
         };
+        player.tellPeers = function () {
+            var packet = {
+                    position: this.position,
+                    delta: this.delta,
+                    id: this.id,
+                    upstreamPing: playerPing
+                },
+                event;
+            if (this.remoteCreated) {
+                socket.broadcast.emit('pawn-move', packet);
+            } else {
+                socket.broadcast.emit('pawn-create', packet);
+                this.remoteCreated = true;
+            }
+        }
+        player.getPing = function () {
+            return playerPing;
+        }
         globalUpdateEventHandler = function () {
         };
         informOtherSockets = function (callback) {
             callback({
-                position: playerPosition,
-                id: playerID
+                position: player.position,
+                id: player.id
             });
         };
         socket.on('ready', function (callback) {
@@ -68,6 +92,7 @@
         socket.on('player-move', function (data) {
             var timestamp,
                 eventData,
+                stopWhere,
                 dt,
                 expectedPosition,
                 didCorrect;
@@ -75,45 +100,43 @@
                 timestamp = +new Date();
             }, function () {
                 if (data.direction) {
-                    playerDelta.x = (+data.direction) * playerSpeed;
-                    playerStartMove = +new Date() - playerPing;
-                    // Send debug info
-                    debugInfoChannel.emit('key', {
-                        position: playerPosition,
-                        delta: playerDelta
+                    player.partialUpdate({
+                        delta: {x: +data.direction * playerSpeed},
+                        startedMoving: +new Date() - playerPing
                     });
                 } else { // stopping
-                    if (playerStartMove !== undefined) {
+                    if (player.startedMoving !== undefined) {
                         // calculate stop position using delta vector.
                         // Then verify given against expected
-                        dt = (timestamp - playerStartMove);
-                        expectedPosition = Math2D.predictPosition(playerPosition, playerDelta, dt + playerPing);
+                        dt = (timestamp - player.startedMoving);
+                        expectedPosition = Math2D.predictPosition(player.position, player.delta, dt + playerPing);
                         if (Math2D.vectorLength(expectedPosition, data.position) <
-                                Math2D.vectorLength(playerPosition, expectedPosition) * 0.1) { // OK to move 10% faster
-                            playerPosition = data.position;
+                                Math2D.vectorLength(player.position, expectedPosition) * 0.1) { // OK to move 10% faster
+                            stopWhere = data.position;
                         } else {
                             socket.emit('player-position-correct', {
                                 expected: expectedPosition,
                                 position: data.position
                             });
                             didCorrect = true;
-                            playerPosition = expectedPosition;
+                            stopWhere = expectedPosition;
                         }
-                        playerDelta = {x: 0, y: 0};
-                        playerStartMove = undefined;
-                        // Send debug info
-                        debugInfoChannel.emit('key', {
-                            position: playerPosition,
-                            delta: playerDelta,
-                            wrongPosition: didCorrect && data.position
-                        });
+                        player.partialUpdate({
+                            delta: {x: 0, y: 0},
+                            position: stopWhere
+                        }); // TODO just use the second argument to tell the clients.
                     }
                 }
+                // Send debug info
+                debugInfoChannel.emit('key', {
+                    position: player.position,
+                    delta: player.delta,
+                    wrongPosition: didCorrect && data.position
+                });
                 eventData = {
-                    startedMoving: timestamp,
-                    position: playerPosition,
-                    delta: playerDelta,
-                    id: playerID,
+                    position: player.position,
+                    delta: player.delta,
+                    id: player.id,
                     upstreamPing: playerPing
                 };
                 socket.broadcast.emit('pawn-move', eventData);
@@ -132,7 +155,7 @@
             socket.emit('ping-event', playerPing);
         };
         socket.on('disconnect', function () {
-            socket.broadcast.emit('pawn-remove', playerID);
+            socket.broadcast.emit('pawn-remove', player.id);
             otherSockets.removeListener('please-inform-me', informOtherSockets);
             globalUpdateEvent.removeListener('tick', globalUpdateEventHandler);
         });
