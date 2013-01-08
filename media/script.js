@@ -140,6 +140,12 @@ jQuery(function ($) {
         getPing: function () {
             // The Entity class is out of this closure, but it needs to know the ping.
             return ownPing;
+        },
+        draw: function (time, ctx) {
+            var deCentered = Math2D.vectorAdd(
+                    this.sprite.center,
+                    this.currentPosition(time));
+            ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
         }
     });
     Player = ClientEntity.extend({
@@ -221,34 +227,16 @@ jQuery(function ($) {
             var ctx = gameCanvasContext,
                 player = window.player,
                 enemies = enemiesList,
-                enemy,
-                predictedPosition,
-                deCentered,
-                time = +new Date(),
-                dt = time - oldTime,
-                enemyID;
+                enemyID,
+                time = +new Date();
             ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
             for (enemyID in enemies) {
                 if (enemies.hasOwnProperty(enemyID)) {
-                    enemy = enemies[enemyID];
-                    if (enemy.startedMoving) {
-                        predictedPosition = enemy.currentPosition(time);
-
-                    } else {
-                        predictedPosition = enemy.position;
-                    }
-                    deCentered = Math2D.vectorAdd(enemy.sprite.center, predictedPosition);
-                    ctx.drawImage(enemy.sprite.image, deCentered.x, deCentered.y);
+                    enemies[enemyID].draw(time, ctx);
                 }
             }
             if (player) {
-                if (player.startedMoving) {
-                    predictedPosition = player.currentPosition(time);
-                } else {
-                    predictedPosition = player.position;
-                }
-                deCentered = Math2D.vectorAdd(player.sprite.center, predictedPosition);
-                ctx.drawImage(player.sprite.image, deCentered.x, deCentered.y);
+                player.draw(time, ctx)
             }
             if (world) {
                 world.drawWorld(ctx);
