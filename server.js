@@ -18,7 +18,6 @@
         // url = require('url'),
         app = express(),
         EventEmitter = require('events').EventEmitter,
-        otherSockets = new EventEmitter(),
         globalUpdateEvent = new EventEmitter(),
         debugInfoChannel = new EventEmitter(),
         server = http.createServer(app),
@@ -46,15 +45,13 @@
                     upstreamPing: this.getPing()
                 },
                 event;
-            this.getSocket().broadcast.emit(this.remoteCreated ? 'pawn-move' : 'pawn-create', packet);
-            this.remoteCreated = true;
+            this.getSocket().broadcast.emit('pawn-update', packet);
         }
     });
     io.sockets.on('connection', function (socket) {
         var player,
             playerSpeed = 350.0, // pixels per second.
             createData,
-            informOtherSockets,
             playerPing = 100, // half a ping
             pinger,
             globalUpdateEventHandler;
@@ -68,20 +65,9 @@
         player.getSocket = function () {return socket;}
         globalUpdateEventHandler = function () {
         };
-        informOtherSockets = function (callback) {
-            callback({
-                position: player.position,
-                id: player.id
-            });
-        };
         socket.on('ready', function (callback) {
             pinger();
-            socket.broadcast.emit('pawn-create', createData);
             callback(createData);
-            otherSockets.emit('please-inform-me', function (data) {
-                socket.emit('pawn-create', data);
-            });
-            otherSockets.on('please-inform-me', informOtherSockets);
             globalUpdateEvent.on('tick', globalUpdateEventHandler);
         });
         socket.on('player-move', function (data) {
@@ -122,7 +108,6 @@
         };
         socket.on('disconnect', function () {
             socket.broadcast.emit('pawn-remove', player.id);
-            otherSockets.removeListener('please-inform-me', informOtherSockets);
             globalUpdateEvent.removeListener('tick', globalUpdateEventHandler);
         });
     });

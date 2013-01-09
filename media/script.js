@@ -249,13 +249,10 @@ jQuery(function ($) {
         var $list = $('ul.announcements');
         // Start stuff up after every event has happened.
         if (playerSpriteLoaded) {
-            socket.on('pawn-create', function (data) {
-                enemiesList[data.id] = new Enemy(data.position);
-            });
-            socket.on('pawn-move', function (data) {
+            socket.on('pawn-update', function (data) {
                 var enemy = enemiesList[data.id];
                 if (enemy === undefined) {
-                    enemy = new Enemy(data.position)
+                    enemiesList[data.id] = new Enemy(data.position);
                 }
                 enemy.update(data);
             });
