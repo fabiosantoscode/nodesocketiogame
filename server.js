@@ -130,10 +130,6 @@
         // the "key frames"
         io.sockets.emit('debug-key', data);
     });
-    debugInfoChannel.on('periodic', function (data) {
-        // the rest of the "frames"
-        io.sockets.emit('debug-periodic', data);
-    });
     server.listen(config.socketioport);
     console.log('socket.io on ' + config.socketioport);
     console.log('listening on ' + config.httport);
