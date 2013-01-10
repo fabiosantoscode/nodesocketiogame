@@ -27,6 +27,12 @@
             }
             position = this.offsetCoordinates(position).x;
             return (position + size.w >= 0 && position <= this.canvasSize.w);
+        },
+        draw: function (entity, ctx, time) {
+            entity.draw(time || +new Date(),
+                ctx,
+                this.offsetCoordinates(
+                    entity.currentPosition(time)));
         }
     });
     try {

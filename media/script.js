@@ -12,7 +12,7 @@ jQuery(function ($) {
         player,
         playerSpeed = 350.0,
         //World
-        //Camera,
+        camera,
         world = new window.World(),
         enemiesList = {},
         playerSprite = {
@@ -60,10 +60,10 @@ jQuery(function ($) {
             // The Entity class is out of this closure, but it needs to know the ping.
             return ownPing;
         },
-        draw: function (time, ctx) {
+        draw: function (time, ctx, replaceCoordinates) {
             var deCentered = Math2D.vectorAdd(
                     this.sprite.center,
-                    this.currentPosition(time));
+                    replaceCoordinates || this.currentPosition(time));
             ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
         }
     });
@@ -148,16 +148,14 @@ jQuery(function ($) {
                 enemies = enemiesList,
                 enemyID,
                 time = +new Date();
-            ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
-            for (enemyID in enemies) {
-                if (enemies.hasOwnProperty(enemyID)) {
-                    enemies[enemyID].draw(time, ctx);
+            if (camera) {
+                ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
+                for (enemyID in enemies) {
+                    if (enemies.hasOwnProperty(enemyID)) {
+                        camera.draw(enemies[enemyID], ctx, time);
+                    }
                 }
-            }
-            if (player) {
-                player.draw(time, ctx)
-            }
-            if (world) {
+                camera.draw(player, ctx, time);
                 world.drawWorld(ctx);
             }
             requestAnimationFrame(loop, gameCanvas); // schedule next frame draw
@@ -182,6 +180,7 @@ jQuery(function ($) {
                 player = new Player(creationData.position, creationData.id);
                 window.player = player;
                 console.log('all loaded');
+                camera = new Camera(player, world, canvasSize);
             });
             window.announce = function (text, type) {
                 $list.append($('<li />')
