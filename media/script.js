@@ -150,13 +150,14 @@ jQuery(function ($) {
                 time = +new Date();
             if (camera) {
                 ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
+                camera.update();
                 for (enemyID in enemies) {
                     if (enemies.hasOwnProperty(enemyID)) {
                         camera.draw(enemies[enemyID], ctx, time);
                     }
                 }
                 camera.draw(player, ctx, time);
-                world.drawWorld(ctx);
+                world.drawWorld(ctx, camera);
             }
             requestAnimationFrame(loop, gameCanvas); // schedule next frame draw
         };
@@ -208,19 +209,23 @@ jQuery(function ($) {
                 redrawDebug = function () {
                     var key,
                         data,
+                        position,
+                        wrongPosition,
                         ctx = debugCanvasContext; // Get canvas context for debug info.
                     ctx.clearRect(0, 0, canvasSize.w, canvasSize.h); // clear debug canvas
                     for (key in redrawList) {
                         if (redrawList.hasOwnProperty(key)) {
                             data = redrawList[key];
                             if (data) {
+                                position = camera.offsetCoordinates(data.position);
                                 ctx.beginPath();
-                                ctx.arc(data.position.x, data.position.y, 10, 0, Math.PI * 2);
+                                ctx.arc(position.x, position.y, 10, 0, Math.PI * 2);
                                 ctx.strokeStyle = '#11FF11'; // green
                                 ctx.stroke();
                                 if (data.wrongPosition) {
+                                    wrongPosition = camera.offsetCoordinates(data.wrongPosition);
                                     ctx.beginPath();
-                                    ctx.arc(data.wrongPosition.x, data.wrongPosition.y, 10, 0, Math.PI * 2);
+                                    ctx.arc(wrongPosition.x, wrongPosition.y, 10, 0, Math.PI * 2);
                                     ctx.strokeStyle = '#FF1111'; // red
                                     ctx.stroke();
                                 }

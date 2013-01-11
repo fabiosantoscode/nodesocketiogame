@@ -58,17 +58,27 @@
                 return result;
             }
         },
-        drawWorld: function(ctx, offsetx) {
+        drawWorld: function(ctx, camera) {
             // Draw every platform in the game world,
             // taking into account a global offset value, given by the camera.
             var i,
                 objects = this.getObjects(),
                 obj,
                 pos, size,
-                len = objects.length;
+                cameraShape,
+                len;
+            if (camera) {
+                cameraShape = camera.toBox();
+                objects = this.boxInWorld(
+                    cameraShape.position,
+                    cameraShape.size,
+                    false,
+                    objects);
+            }
+            len = objects.length;
             for (i = 0; i < len; i += 1) {
                 obj = objects[i];
-                pos = obj.position;
+                pos = camera ? camera.offsetCoordinates(obj.position) : obj.position;
                 size = obj.size;
                 if (obj.type === 'platform') {
                     ctx.fillStyle = '#000000';
@@ -241,7 +251,6 @@
                     }
                 }
             }
-            
             if (boolean) {
                 return false;
             } else {

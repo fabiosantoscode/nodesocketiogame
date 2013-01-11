@@ -15,7 +15,7 @@
             };
         },
         update: function (dt) {
-            this.offset = this.lookAtEntity.position.x - (
+            this.offset = this.lookAtEntity.currentPosition().x - (
                 (this.lookAtEntity.size.w / 2) +
                 (this.canvasSize.w / 2));
         },
@@ -33,6 +33,12 @@
                 ctx,
                 this.offsetCoordinates(
                     entity.currentPosition(time)));
+        },
+        toBox: function () {
+            return {
+                position: {x: 0 + this.offset, y: 0},
+                size: this.canvasSize
+            };
         }
     });
     try {

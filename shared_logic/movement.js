@@ -21,6 +21,7 @@
         startedMoving: undefined, //if undefined then stopped
         position: {x: 0, y: 0},
         delta: {x: 0, y: 0},
+        size: {w: 0, h: 0},
         // TODO gravity and being affected by it.
         // TODO accel too.
         collisionSize: {},

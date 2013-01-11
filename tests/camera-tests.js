@@ -2,7 +2,7 @@ function cameraFactory (lookAt, world, canvasSize) {
     return new Camera(
         lookAt || {x:0},
         world || {},
-        canvasSize || {w: 640}
+        canvasSize || {w: 640, h: 480}
     );
 }
 test('visible()', function () {
@@ -22,16 +22,16 @@ test('visible()', function () {
     ok(!camera.visible(entity), 'right boundary, outside');
 });
 test('update()', function () {
-    var lookAt = {position: {x: 0}, size: {w: 10}},
+    var lookAt = {currentPosition: function () {return {x: 0, y: 0}}, size: {w: 10}},
         camera = cameraFactory(lookAt),
         oldPosition;
     camera.update();
     oldPosition = camera.offset;
     
-    lookAt.position.x += 1;
+    lookAt.currentPosition = function () {return {x: 1, y: 0}};
     camera.update();
     equal(camera.offset, oldPosition + 1);
-}); // TODO
+});
 test('offsetCoordinates()', function () {
     // A camera's offset is zero by default.
     var camera = cameraFactory();
@@ -42,4 +42,10 @@ test('offsetCoordinates()', function () {
     deepEqual(
         camera.offsetCoordinates({x: 10, y: 0}),
         {x: 0, y: 0}, 'offset by -10 since the camera is 10 to the right');
+});
+test('toBox()', function () {
+    var camera = cameraFactory();
+    deepEqual(camera.toBox(), {
+        position: {x: 0, y: 0},
+        size: {w: 640, h: 480}});
 });
