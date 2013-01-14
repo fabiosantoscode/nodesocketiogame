@@ -64,6 +64,23 @@
                 {x: 10, y: 1}
             ], 'pointsOfBox');
     });
+    test('Calculating acceleration', function () {
+        var delta = {x: 1000, y: 0},
+            accelerationTime = 1200,
+            time = 1000,
+            d;
+        d = Math2D.accelerate(delta, 0, time).x;
+        equal(d, 1000, 'when accelerationTime === 0 we get immediate acceleration');
+        d = Math2D.accelerate(delta, accelerationTime, 0).x;
+        equal(d, 0, 'when time === 0 we get nowhere');
+        d = Math2D.accelerate({x: 0, y: 0}, accelerationTime, time).x;
+        equal(d, 0, 'when delta === {} we get nowhere');
+        
+        accelerationTime = 500;
+        d = Math2D.accelerate(delta, accelerationTime, time).x;
+        ok(d > 0, 'd greater than 0');
+        ok(d < 1000, 'd less than time');
+    });
     test('Fix moving box query bugs', function () {
         var size = {w: 2, h: 2},
             lotsOfTime = 10,

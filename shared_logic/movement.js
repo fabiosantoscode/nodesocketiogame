@@ -22,6 +22,7 @@
         position: {x: 0, y: 0},
         delta: {x: 0, y: 0},
         size: {w: 0, h: 0},
+        accelerationTime: 0,
         // TODO gravity and being affected by it.
         // TODO accel too.
         collisionSize: {},
@@ -43,7 +44,9 @@
         },
         predictPosition: function (time) {
             if (this.startedMoving){
-                return Math2D.predictPosition(this.position, this.delta, time);
+                return Math2D.vectorAdd(
+                    Math2D.accelerate(this.delta, this.accelerationTime, time),
+                    this.position);
             } else {
                 return this.position;
             }

@@ -8,6 +8,16 @@
             angdiff = Math2D.radClamp(angdiff);
             return !(angdiff >= 0 && angdiff <= Math.PI)
         },
+        accelerate: function (delta, accelerationTime, ms) {
+            /* Get dPosition from delta, acceleration ratio and dTime (ms) */
+            if (ms < accelerationTime) {
+                // For now, just stand there.
+                return {x: 0, y: 0};
+            } else {
+                // When done accelerating, return linear.
+                return Math2D.predictPosition({x: 0, y: 0}, delta, ms - accelerationTime);
+            }
+        },
         radClamp: function (ang) {
             var fullTurn = Math.PI * 2;
             while (ang <= 0) {

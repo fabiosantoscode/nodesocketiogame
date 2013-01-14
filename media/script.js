@@ -126,15 +126,6 @@ jQuery(function ($) {
         }
     });
     enemiesList = {};
-    /*
-    Camera = new Class.extend({
-        
-    });
-    
-    World = new Class.extend({
-        
-    });
-    */
     function gameRenderLoop() {
         // Render to the "game" layer. Request frame updates from browser (or
         // setTimeout). this is the only layer which needs constant updates
