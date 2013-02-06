@@ -62,4 +62,18 @@
         ok(d > 0, 'd greater than 0');
         ok(d < 1000, 'd less than time');
     });
+    test('Interpolation', function () {
+        var interp;
+        interp = Math2D.lerp(Math2D.origin, Math2D.origin, 0.5);
+        deepEqual(interp, Math2D.origin);
+        
+        interp = Math2D.lerp({x: 10, y: 10}, {x: 20, y: 20}, 0.5);
+        deepEqual(interp, {x: 15, y: 15});
+        
+        interp = Math2D.lerp(Math2D.origin, {x: 10, y: 10}, 0);
+        deepEqual(interp, Math2D.origin);
+        
+        interp = Math2D.lerp(Math2D.origin, {x: 10, y: 10}, 1);
+        deepEqual(interp, {x: 10, y: 10});
+    });
 }(window));

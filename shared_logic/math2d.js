@@ -2,6 +2,7 @@
     'use strict';
     var Math2D;
     Math2D = {
+        origin: {x: 0, y: 0},
         pointInHalfPlane: function (p1, p2, point) {
             var angdiff = (Math2D.halfPlaneAngle(p1, p2)
                 - Math2D.halfPlaneAngle(p1, point));
@@ -70,6 +71,15 @@
         },
         vectorBool: function (a) {
             return a.x || a.y;
+        },
+        lerp: function (a, b, ratio) {
+            // Linear interpolation of a and b, by ratio.
+            // Assume ratio is a number between 0 and 1
+            var inv = 1 - ratio;
+            return {
+                x: (a.x * inv) + (b.x * ratio),
+                y: (a.y * inv) + (b.y * ratio)
+            };
         },
         angleBetween2Points: function (a, b) {
             return Math.atan2(b.x - a.x, b.y - a.y);
