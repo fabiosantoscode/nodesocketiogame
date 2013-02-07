@@ -11,13 +11,16 @@
         },
         accelerate: function (delta, accelerationTime, ms) {
             /* Get dPosition from delta, acceleration ratio and dTime (ms) */
-            if (ms < accelerationTime) {
-                // For now, just stand there.
-                return {x: 0, y: 0};
-            } else {
-                // When done accelerating, return linear.
-                return Math2D.predictPosition({x: 0, y: 0}, delta, ms - accelerationTime);
+            var affect = accelerationTime * 0.5,
+                ratio = ms / accelerationTime;
+            if (ratio < 1) {
+                affect = Math2D.flerp(
+                    Math2D.flerp(0, affect, ratio),
+                    affect,
+                    ratio);
             }
+            // When done accelerating, return linear.
+            return Math2D.predictPosition({x: 0, y: 0}, delta, ms - affect);
         },
         radClamp: function (ang) {
             var fullTurn = Math.PI * 2;
@@ -80,6 +83,9 @@
                 x: (a.x * inv) + (b.x * ratio),
                 y: (a.y * inv) + (b.y * ratio)
             };
+        },
+        flerp: function (a, b, ratio) {
+            return (a * (1 - ratio)) + (b * ratio);
         },
         angleBetween2Points: function (a, b) {
             return Math.atan2(b.x - a.x, b.y - a.y);

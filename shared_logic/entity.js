@@ -27,7 +27,7 @@
         return packet;
     }
     Entity = Movement.extend({
-        accelerationTime: 800,
+        accelerationTime: 400,
         init: function (position) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
