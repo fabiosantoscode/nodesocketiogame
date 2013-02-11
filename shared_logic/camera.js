@@ -8,6 +8,12 @@
             this.lookAtEntity = lookAtEntity;
             this.canvasSize = canvasSize;
         },
+        absoluteCoordinates: function (vector) {
+            return {
+                x: vector.x + this.offset,
+                y: vector.y
+            };
+        },
         offsetCoordinates: function (vector) {
             return {
                 x: vector.x - this.offset,
