@@ -19,6 +19,7 @@
         var compensation;
         compensation = ping || 0;
         compensation += packet.upstreamPing || 0;
+        compensation += packet.sendDelay || 0;
         if (packet.startedMoving) {
             packet.startedMoving -= compensation;
         } else {
@@ -37,6 +38,13 @@
             if (tellPeers) {
                 this.tellPeers();
             }
+        },
+        toPacket: function () {
+            return {
+                position: this.position,
+                delta: this.delta,
+                id: this.id
+            };
         },
         update: function (data, tellPeers) {
             // Update this instance using a packet of data. It may have upstream ping.

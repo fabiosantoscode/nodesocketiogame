@@ -38,13 +38,8 @@
             this.id = id;
         },
         tellPeers: function () {
-            var packet = {
-                    position: this.position,
-                    delta: this.delta,
-                    id: this.id,
-                    upstreamPing: this.getPing()
-                },
-                event;
+            var packet = this.toPacket();
+            packet.upstreamPing = this.getPing();
             this.getSocket().broadcast.emit('pawn-update', packet);
         }
     });
