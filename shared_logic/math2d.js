@@ -4,10 +4,10 @@
     Math2D = {
         origin: {x: 0, y: 0},
         pointInHalfPlane: function (p1, p2, point) {
-            var angdiff = (Math2D.halfPlaneAngle(p1, p2)
-                - Math2D.halfPlaneAngle(p1, point));
+            var angdiff = (Math2D.halfPlaneAngle(p1, p2) -
+                Math2D.halfPlaneAngle(p1, point));
             angdiff = Math2D.radClamp(angdiff);
-            return !(angdiff >= 0 && angdiff <= Math.PI)
+            return !(angdiff >= 0 && angdiff <= Math.PI);
         },
         accelerate: function (delta, accelerationTime, ms) {
             /* Get dPosition from delta, acceleration ratio and dTime (ms) */
@@ -106,7 +106,7 @@
             return {
                 x: ((tmp.x * cosine) - (tmp.y * sine)) + pivot.x,
                 y: ((tmp.x * sine) + (tmp.y * cosine)) + pivot.y
-            }
+            };
         },
         pointsOfBox: function (position, size) {
             // Return counter-clockwise list of box points.
