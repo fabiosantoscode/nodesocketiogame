@@ -5,25 +5,34 @@
         require('math2d.js');
     } // else: include through HTML tag.
     exports.World = Class.extend({
-        init: function (worldObjects) {
-            this.objects = worldObjects || [
-                {
-                    type: 'platform',
-                    position: {x: 60, y: 400},
-                    size: {w: 200, h: 5},
-                    collision: 'rect'
-                }, {
-                    type: 'platform',
-                    position: {x: 30, y: 300},
-                    size: {w: 100, h: 5},
-                    collision: 'rect'
-                }, {
-                    type: 'platform',
-                    position: {x: 350, y: 410},
-                    size: {w: 100, h: 200},
-                    collision: 'rect'
-                }
-            ];
+        init: function (worldObjects, physicsWorld) {
+            var objects = worldObjects || [
+                    {
+                        type: 'platform',
+                        position: {x: 60, y: 400},
+                        size: {w: 200, h: 5},
+                        collision: 'rect'
+                    }, {
+                        type: 'platform',
+                        position: {x: 30, y: 300},
+                        size: {w: 100, h: 5},
+                        collision: 'rect'
+                    }, {
+                        type: 'platform',
+                        position: {x: 350, y: 410},
+                        size: {w: 100, h: 200},
+                        collision: 'rect'
+                    }
+                ],
+                i;
+            this.physicsWorld = physicsWorld || undefined;
+            this.objects = [];
+            for (i = 0; i < objects.length; i += 1) {
+                this.addStatic(objects[i]);
+            }
+        },
+        addStatic: function (object) {
+            this.objects.push(object);
         },
         getObjects: function (startx, endx, starty, endy) {
             // Constant and not quadtree optimized for now.

@@ -29,12 +29,20 @@
     }
     Entity = Movement.extend({
         accelerationTime: 400,
-        init: function (position) {
+        init: function (position, entityWorld) {
             this.position.x = position.x || 0;
             this.position.y = position.y || 0;
+            this.entityWorld = entityWorld || undefined;
+            this.bump();
+        },
+        bump: function () {
+            if (this.entityWorld) {
+                this.lastChanged = this.entityWorld.getVersion();
+            }
         },
         partialUpdate: function (data, tellPeers) {
             this._super(data);
+            this.bump();
             if (tellPeers) {
                 this.tellPeers();
             }
@@ -68,7 +76,6 @@
         },
         tellPeers: function (packet) {
             // Inform the server or the client that something has changed.
-            // Send the argument `packet`, or create a packet using `this`.
             // Remember to set upstreamPing if necessary, and unset if not
             throw new Error('Not implemented!');
         }
