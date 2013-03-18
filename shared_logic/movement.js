@@ -18,7 +18,7 @@
         world = newWorld;
     };
     Movement = Class.extend({
-        startedMoving: undefined, //if undefined then stopped
+        movementStart: undefined, //if undefined then stopped
         position: {x: 0, y: 0},
         delta: {x: 0, y: 0},
         size: {w: 0, h: 0},
@@ -40,10 +40,13 @@
         },
         currentPosition: function (atTime) {
             atTime = atTime || +new Date();
-            return this.predictPosition(atTime - this.startedMoving);
+            return this.predictPosition(atTime - this.movementStart);
+        },
+        isMoving: function () {
+            return this.movementStart !== undefined;
         },
         predictPosition: function (time) {
-            if (this.startedMoving){
+            if (this.movementStart){
                 return Math2D.vectorAdd(
                     Math2D.accelerate(this.delta, this.accelerationTime, time),
                     this.position);
@@ -54,9 +57,9 @@
         partialUpdate: function (data) {
             if (data.position || data.delta) {
                 this.position = this.currentPosition();
-                this.startedMoving = data.startedMoving;
-                if (!this.startedMoving && data.delta && Math2D.vectorBool(data.delta)) {
-                    this.startedMoving = +new Date();
+                this.movementStart = data.startedMoving;
+                if (!this.movementStart && data.delta && Math2D.vectorBool(data.delta)) {
+                    this.movementStart = +new Date();
                 }
             } else {
                 return;
