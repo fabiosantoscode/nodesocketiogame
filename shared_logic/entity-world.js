@@ -73,12 +73,15 @@
             if (ordinal < this.latestUpdateReceived) {
                 return false;
             }
+            console.log(entities);
             for (id in entities) {
                 if (entities.hasOwnProperty(id)) {
                     if (this.entities[id] === undefined) {
                         this.entities[id] = new Entity(Math2D.origin, this);
+                        this.entities[id].id = +id;
                     }
-                    entity = entities[id];
+                    entity = this.entities[id];
+                    entity.partialUpdate(data.entities[id]);
                 }
             }
             return true;
