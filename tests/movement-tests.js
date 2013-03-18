@@ -21,27 +21,25 @@
         entity.partialUpdate({position: {x: 20, y: undefined}});
         equal(entity.position.x, 20);
         ok(entity.position.y !== undefined)
-        entity.partialUpdate({delta: {x: 10}, startedMoving: 1000});
-        deepEqual(entity.startedMoving, 1000);
     });
     test('predict position', function () {
         var entity = movementFactory();
         deepEqual(entity.predictPosition(1000), entity.position);
         entity.delta.x = 1;
-        entity.startedMoving = +new Date();
+        entity.movementStart = +new Date();
         deepEqual(entity.predictPosition(1000), {x: 1, y: 0});
     });
     test('current position', function () {
         var entity = movementFactory();
         entity.delta.x = 1;
-        entity.startedMoving = 1000;
+        entity.movementStart = 1000;
         deepEqual(entity.currentPosition(1000), {x: 0, y: 0});
         deepEqual(entity.currentPosition(2000), {x: 1, y: 0});
     });
     test('get expected stop data', function () {
         var entity = movementFactory();
         entity.delta = {x: 10, y: 0};
-        entity.startedMoving = new Date();
+        entity.movementStart = new Date();
         ok(entity.getExpectedStop(1000));
         entity.delta.x -= 20;
         ok(!entity.getExpectedStop(1000));

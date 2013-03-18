@@ -70,7 +70,7 @@
             induceLag(function () {
                 timestamp = +new Date();
             }, function () {
-                if (player.startedMoving && !data.direction ) { // if stopping
+                if (player.isMoving() && !data.direction ) { // if stopping
                     stopping = true;
                 }
                 player.partialUpdate({
