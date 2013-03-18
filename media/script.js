@@ -19,6 +19,9 @@ jQuery(function ($) {
             image: new Image(),
             center: {x: -16, y: -63}
         },
+        //Keyboard input handler
+        keyInput = window.keyInput,
+        // stuff we need to load before we are ready to play
         playerSpriteLoaded,
         // Canvas graphics (inspired in jCanvaScript)
         frameUpdateSubscribers = [],
@@ -51,6 +54,8 @@ jQuery(function ($) {
             window.msCancelRequestAnimationFrame ||
             window.oCancelRequestAnimationFrame ||
             clearTimeout,
+        logicTicks = 12, // per second
+        logicTickInterval = 1000 / logicTicks,
         // debug stuff
         debugMode = !!$('.debuginfo').length,
         $pingDisplay = $('.debuginfo.ping');
@@ -132,8 +137,8 @@ jQuery(function ($) {
         // and slim code. The others might just use setInterval with large intervals
         // and/or respond to events.
         var oldTime = +new Date(),
-            loop;
-        loop = function () {
+            renderLoop;
+        renderLoop = function () {
             var ctx = gameCanvasContext,
                 player = window.player,
                 enemies = enemiesList,
@@ -150,9 +155,22 @@ jQuery(function ($) {
                 camera.draw(player, ctx, time);
                 world.drawWorld(ctx, camera);
             }
-            requestAnimationFrame(loop, gameCanvas); // schedule next frame draw
+            requestAnimationFrame(renderLoop, gameCanvas); // schedule next frame draw
         };
-        loop();
+        renderLoop();
+    }
+    function gameLogicLoop() {
+        var oldTime = +new Date(),
+            logicLoop;
+        logicLoop = function () {
+            var newTime = +new Date(),
+                dt = newTime - oldTime;
+            // entityWorld.frame();
+            keyInput.frame();
+            setTimeout(logicLoop, logicTickInterval);
+            oldTime = +new Date();
+        };
+        logicLoop();
     }
     function tryInit() {
         var $list = $('ul.announcements');
@@ -192,6 +210,7 @@ jQuery(function ($) {
                 }
             });
             gameRenderLoop();
+            gameLogicLoop();
             // Debug information!
             (function () {
                 var redrawList = {},
