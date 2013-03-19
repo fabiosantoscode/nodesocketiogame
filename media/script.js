@@ -60,7 +60,10 @@ jQuery(function ($) {
         debugMode = !!$('.debuginfo').length,
         $pingDisplay = $('.debuginfo.ping');
     playerSprite.image.src = '/media/bacano.png';
+
     ClientEntity = Entity.extend({
+        // TODO use prototype to extend this behavior instead. F strict
+        // inheritance trees, I'm writing JavaScript.
         getPing: function () {
             // The Entity class is out of this closure, but it needs to know the ping.
             return ownPing;
@@ -70,18 +73,22 @@ jQuery(function ($) {
                     this.sprite.center,
                     replaceCoordinates || this.currentPosition(time));
             ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
-        }
-    });
-    Player = ClientEntity.extend({
+        },
         sprite: {
             image: playerSprite.image,
             center: playerSprite.center
         },
+    });
+    Player = ClientEntity.extend({
         init: function (position, id) {
             this._super(position);
-            setUpKeys(this);
+            // setUpKeys(this);
+            // TODO: do not do the following lines when entityWorld is integrated
             this.listenToSocketEvents();
             this.id = id;
+        },
+        tick: function (dt) {
+            
         },
         wasMoving: null,
         listenToSocketEvents: function () {
@@ -122,13 +129,7 @@ jQuery(function ($) {
         }
     });
     Enemy = ClientEntity.extend({
-        sprite: {
-            image: playerSprite.image,
-            center: playerSprite.center
-        },
-        init: function (position) {
-            this._super(position);
-        }
+        
     });
     enemiesList = {};
     function gameRenderLoop() {
