@@ -17,19 +17,22 @@
         pressedThisFrame: {},
         releasedThisFrame: {},
         isPressed: function (key) {
-            return this.pressedKeys[realKey(key)];
+            return !!this.pressedKeys[realKey(key)];
         },
         wasReleased: function (key) {
-            return this.releasedThisFrame[realKey(key)];
+            return !!this.releasedThisFrame[realKey(key)];
         },
         wasPressed: function (key) {
-            return this.pressedThisFrame[realKey(key)];
+            return !!this.pressedThisFrame[realKey(key)];
         },
         pressKey: function (key) {
             key = realKey(key);
-            this.pressedThisFrame[key] = true;
-            this.pressedKeys[key] = true;
-            this._events.trigger('press', key);
+            // Our browser will give us the same event again...
+            if (!this.pressedKeys[key]) {
+                this.pressedThisFrame[key] = true;
+                this.pressedKeys[key] = true;
+                this._events.trigger('press', key);
+            }
         },
         releaseKey: function (key) {
             key = realKey(key);
