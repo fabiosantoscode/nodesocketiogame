@@ -54,8 +54,7 @@
                 delta,
                 stopWhere,
                 worldQueryResult;
-            // TODO isn't it if (side === 0) ?
-            if (this.wasMoving) { // stopping
+            if (side === 0) { // stopping
                 stopWhere = this.currentPosition(timestamp);
                 this.socket.emit('player-move', {
                     position: stopWhere,
@@ -65,7 +64,7 @@
                 this.stop(stopWhere);
             } else {
                 this.socket.emit('player-move', {
-                    position: this.position,
+                    position: this.currentPosition(timestamp),
                     direction: side
                 });
                 delta = {
@@ -75,7 +74,7 @@
                 this.update({
                     delta: delta,
                     startedMoving: timestamp,
-                    position: this.position});
+                    position: this.currentPosition(timestamp)});
             }
             this.wasMoving = side;
         }
