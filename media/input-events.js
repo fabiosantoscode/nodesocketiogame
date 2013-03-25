@@ -1,15 +1,12 @@
 (function () {
     'use strict';
     var $ = window.jQuery,
-        sides = {},
-        revSides = {},
         mappings = {},
         keyInput,
         realKey;
     realKey = function (key) {
         // Get mapped key code from a key alias, or just from a key
-        var realk = mappings[key] || key;
-        return revSides[key] || realk;
+        return mappings[key] || key;
     };
     window.keyInput = keyInput = {
         _events: new window.EventEmitter(),
@@ -57,16 +54,6 @@
         .on('keyup', function (e) {
             keyInput.releaseKey(e.which);
         });
-    sides = {
-        37: -1, /*left*/
-        38: 'jump', /*up*/
-        39: 1, /*right*/
-        40: 'crouch' /* down */
-    };
-    revSides[-1] = 37;
-    revSides['jump'] = 38;
-    revSides[1] = 39;
-    revSides['crouch'] = 40;
     mappings = { // map a WASD key to an arrow key
         65: 37, // A
         87: 38, // W
