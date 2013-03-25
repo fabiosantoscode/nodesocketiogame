@@ -82,7 +82,7 @@ jQuery(function ($) {
     Player = ClientEntity.extend({
         init: function (position, id) {
             this._super(position);
-            // setUpKeys(this);
+            setUpKeys(this);
             // TODO: do not do the following lines when entityWorld is integrated
             this.listenToSocketEvents();
             this.id = id;

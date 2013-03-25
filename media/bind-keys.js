@@ -1,17 +1,6 @@
 function setUpKeys(player) {
     'use strict';
-    var pressedKeys = 0,
-        sides,
-        lastAction = 0,
-        interestingKeys,
-        foundKey,
-        event,
-        mappings,
-        lastPressed,
-        secondToLastPressed,
-        keyInput = window.keyInput;
-    interestingKeys = [37, 39];
-    pressedKeys = {}; // Currently pressed keys
+    var sides, mappings;
     sides = {
         37: -1, /*left*/
         38: 'jump', /*up*/
@@ -27,37 +16,14 @@ function setUpKeys(player) {
     };
     keyInput.onPress(function (key) {
         var action = sides[key];
-        if (action && action !== lastAction) {
-            lastAction = action;
-            if (action === 'jump') {
-                player.startJump();
-            } else {
-                player.moveToSide(action);
-            }
+        if (+action) { // Pressed a "side" key
+            player.moveToSide(action);
         }
     });
     keyInput.onRelease(function (key) {
         var action = sides[key];
-        if (action === 'jump') {
-            player.stopJump();
-        } else if (action === 'crouch') {
-            player.crouch();
-        } else if (action !== undefined) { // left or right
-            foundKey = 0;
-            $.each(pressedKeys, function (ind, val) {
-                if (val === true) {
-                    foundKey = ind;
-                    return false;
-                }
-            });
-            if (foundKey) {
-                event = jQuery.Event('keydown');
-                event.which = foundKey;
-                $(window).trigger(event);
-            } else {
-                player.moveToSide(0);
-                lastAction = 0;
-            }
+        if (+action) { // Released a "side" key
+            player.moveToSide(0);
         }
     });
 }
