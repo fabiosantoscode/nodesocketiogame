@@ -5,7 +5,6 @@ jQuery(function ($) {
         //Classes
         Class = window.Class,
         Movement = window.Movement,
-        ClientEntity,
         Enemy,
         Player,
         //Pawns
@@ -30,8 +29,8 @@ jQuery(function ($) {
             w: 640,
             h: 480
         },
-        // For compensating timestamp calculations. Reasonable default.
-        ownPing = undefined,
+        // For compensating timestamp calculations.
+        ownPing,
         gameCanvas = document.getElementById('gamecanvas'),
         gameCanvasContext = gameCanvas.getContext('2d'),
         debugCanvas = document.getElementById('debugcanvas'),
@@ -61,25 +60,23 @@ jQuery(function ($) {
         $pingDisplay = $('.debuginfo.ping');
     playerSprite.image.src = '/media/bacano.png';
 
-    ClientEntity = Entity.extend({
-        // TODO use prototype to extend this behavior instead. F strict
-        // inheritance trees, I'm writing JavaScript.
-        getPing: function () {
-            // The Entity class is out of this closure, but it needs to know the ping.
-            return ownPing;
-        },
-        draw: function (time, ctx, replaceCoordinates) {
-            var deCentered = Math2D.vectorAdd(
-                    this.sprite.center,
-                    replaceCoordinates || this.currentPosition(time));
-            ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
-        },
-        sprite: {
-            image: playerSprite.image,
-            center: playerSprite.center
-        },
-    });
-    Player = ClientEntity.extend({
+
+    // Stuff every entity needs
+    Entity.prototype.draw = function (time, ctx, replaceCoordinates) {
+        var deCentered = Math2D.vectorAdd(
+            this.sprite.center,
+            replaceCoordinates || this.currentPosition(time));
+        ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
+    };
+
+    Entity.prototype.getPing = function () {return ownPing};
+
+    Entity.prototype.sprite = {
+        image: playerSprite.image,
+        center: playerSprite.center
+    };
+
+    Player = Entity.extend({
         init: function (position, id) {
             this._super(position);
             setUpKeys(this);
@@ -128,7 +125,7 @@ jQuery(function ($) {
             this.wasMoving = side;
         }
     });
-    Enemy = ClientEntity.extend({
+    Enemy = Entity.extend({
         
     });
     enemiesList = {};
