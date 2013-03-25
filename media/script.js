@@ -77,9 +77,9 @@ jQuery(function ($) {
     };
 
     Player = Entity.extend({
-        init: function (position, id) {
+        init: function (position, id, keyInput) {
             this._super(position);
-            setUpKeys(this);
+            this.setUpKeys(keyInput || window.keyInput);
             // TODO: do not do the following lines when entityWorld is integrated
             this.listenToSocketEvents();
             this.id = id;
@@ -87,9 +87,31 @@ jQuery(function ($) {
         tick: function (dt) {
             
         },
+        setUpKeys: function (keyInput) {
+            var sides;
+            sides = {
+                37: -1, /*left*/
+                38: 'jump', /*up*/
+                39: 1, /*right*/
+                40: 'crouch' /* down */
+            };
+            keyInput.onPress(function (key) {
+                var action = sides[key];
+                if (+action) { // Pressed a "side" key
+                    player.moveToSide(action);
+                }
+            });
+            keyInput.onRelease(function (key) {
+                var action = sides[key];
+                if (+action) { // Released a "side" key
+                    player.moveToSide(0);
+                }
+            });
+        },
         wasMoving: null,
         listenToSocketEvents: function () {
             var that = this;
+            // TODO this event should be removed, or at least changed into waiting for EntityWorld.
             socket.on('player-position-correct', function (data) {
                 that.position = data.expected;
             });
@@ -100,6 +122,7 @@ jQuery(function ($) {
                 delta,
                 stopWhere,
                 worldQueryResult;
+            // TODO isn't it if (side === 0) ?
             if (this.wasMoving) { // stopping
                 stopWhere = this.currentPosition(timestamp);
                 socket.emit('player-move', {
