@@ -3,12 +3,13 @@
 raises, start, stop, strictEqual, test */
 (function (window) {
     'use strict';
-    var roundVector = function (v) {
+    var Math2D = window.Math2D,
+        roundVector = function (v) {
             return {
                 x: Math.round(v.x * 10) / 10,
                 y: Math.round(v.y * 10) / 10
             };
-        }
+        };
     test('2d math functions', function () {
         equal(Math2D.halfPlaneAngle(
             {x: 0, y: 0}, {x: 0, y: 15}), Math.PI / 2, 'Half plane angle detection');

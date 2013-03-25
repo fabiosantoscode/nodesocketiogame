@@ -1,8 +1,12 @@
 /*globals asyncTest, deepEqual, equal, expect, module
 , notDeepEqual, notEqual, notStrictEqual, ok, QUnit,
-raises, start, stop, strictEqual, test */
+raises, start, stop, strictEqual, test, window
+*/
 (function () {
     'use strict';
+    var Entity = window.Entity,
+        EntityWorld = window.EntityWorld,
+        Math2D = window.Math2D;
     test('Test adding and removing entities', function () {
         var eww = new EntityWorld(),
             mockEntity = {};

@@ -23,7 +23,7 @@ raises, start, stop, strictEqual, test */
         deepEqual(entity.delta, {x: 10, y: -10});
         entity.partialUpdate({position: {x: 20, y: undefined}});
         equal(entity.position.x, 20);
-        ok(entity.position.y !== undefined)
+        ok(entity.position.y !== undefined);
     });
     test('predict position', function () {
         var entity = movementFactory();

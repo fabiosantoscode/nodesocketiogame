@@ -61,4 +61,9 @@
    
     return Class;
   };
+  try {
+      module.exports.Class = Class;
+  } catch (e) {
+      window.Class = Class;
+  }
 })();

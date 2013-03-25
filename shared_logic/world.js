@@ -1,9 +1,15 @@
-(function (require, exports) {
+/*jshint browser: true, node: true*/
+(function () {
     'use strict';
-    if (require) {
-        require('inheritance.js');
-        require('math2d.js');
-    } // else: include through HTML tag.
+    var Class,
+        Math2D;
+    try {
+        Class = require('./inheritance.js').Class;
+        Math2D = require('./math2d.js').Math2D;
+    } catch (e) {
+        Class = window.Class;
+        Math2D = window.Math2D;
+    }
     exports.World = Class.extend({
         init: function (worldObjects, physicsWorld) {
             var objects = worldObjects || [
@@ -51,8 +57,7 @@
                 pos = obj.position;
                 size = obj.size;
                 if (obj.collision === 'rect') {
-                    if ((x > pos.x && x < pos.x + size.w)
-                            && (y > pos.y && y < pos.y + size.h)) {
+                    if ((x > pos.x && x < pos.x + size.w) && (y > pos.y && y < pos.y + size.h)) {
                         if (boolean) {
                             return true;
                         } else {
@@ -104,7 +109,7 @@
                 elements = this.halfPlaneInWorld(
                     pts[i], pts[i + 1], false, elements);
             }
-            elements = this.halfPlaneInWorld(pts[pts.length - 1], pts[0], false, elements)
+            elements = this.halfPlaneInWorld(pts[pts.length - 1], pts[0], false, elements);
             if (boolean) {
                 return !!elements.length;
             } else {
@@ -210,7 +215,7 @@
             ret = {
                 list: results,
                 position: undefined,
-                time: undefined,
+                time: undefined
             };
             for (walkTime = -walkTimeDelta; walkTime < timeLimitMilliSeconds; walkTime += walkTimeDelta) {
                 walkStep = Math2D.predictPosition(startPosition, delta, walkTime);
@@ -244,7 +249,7 @@
                 obj,
                 boxPoints;
             if (p1.x - p2.x === 0 && p1.y - p2.y === 0) {
-                throw new Error('Bad half plane. p1 === p2')
+                throw new Error('Bad half plane. p1 === p2');
             }
             for (i = 0; i < len; i += 1) {
                 obj = objects[i];
@@ -267,4 +272,4 @@
             }
         }
     });
-}(this.require, (this.module && this.module.exports) || window));
+}());

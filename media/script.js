@@ -1,19 +1,23 @@
-/*jshint browser: true */
+/*jshint browser: true, devel: true*/
 jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
-        socket = window.socket = io.connect('http://' + hostname + ':9090'),
+        socket = window.socket = window.io.connect('http://' + hostname + ':9090'),
         //Classes
         Class = window.Class,
         Movement = window.Movement,
+        Entity = window.Entity,
         Enemy = window.Enemy,
         Player = window.Player,
         //Pawns
         player,
         playerSpeed = 350.0,
         //World
+        Camera = window.Camera,
         camera,
         world = new window.World(),
+        //Utils
+        Math2D = window.Math2D,
         enemiesList = {},
         playerSprite = {
             image: new Image(),
@@ -70,7 +74,9 @@ jQuery(function ($) {
         ctx.drawImage(this.sprite.image, deCentered.x, deCentered.y);
     };
 
-    Entity.prototype.getPing = function () {return ownPing};
+    Entity.prototype.getPing = function () {
+        return ownPing;
+    };
 
     Entity.prototype.sprite = {
         image: playerSprite.image,

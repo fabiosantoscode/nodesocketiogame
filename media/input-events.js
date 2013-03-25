@@ -1,3 +1,4 @@
+/*jshint browser: true*/
 (function () {
     'use strict';
     var $ = window.jQuery,

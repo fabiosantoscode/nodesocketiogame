@@ -3,7 +3,8 @@
 raises, start, stop, strictEqual, test */
 (function (window) {
     'use strict';
-    var World = window.World,
+    var Math2D = window.Math2D,
+        World = window.World,
         testWorldObjects = [
             {
                 type: 'platform',

@@ -57,8 +57,8 @@
             position: player.position,
             id: player.id
         };
-        player.getPing = function () {return playerPing;}
-        player.getSocket = function () {return socket;}
+        player.getPing = function () {return playerPing;};
+        player.getSocket = function () {return socket;};
         globalUpdateEventHandler = function () {
         };
         socket.on('ready', function (callback) {
@@ -76,7 +76,7 @@
                 }
                 player.partialUpdate({
                     delta: {x: +data.direction * playerSpeed},
-                    startedMoving: timestamp,
+                    startedMoving: timestamp
                 }, true);
                 if (stopping) {
                     socket.emit('player-position-correct', {

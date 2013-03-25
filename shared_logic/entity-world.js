@@ -1,7 +1,20 @@
 /*jshint browser: true, devel: true, node: true */
 (function () {
     'use strict';
-    var EntityWorld = Class.extend({
+    var Class,
+        Math2D,
+        Entity,
+        EntityWorld;
+    if (require) {
+        Class = require('./inheritance.js').Class;
+        Math2D = require('./math2d.js').Math2D;
+        Entity = require('./entity.js').Entity;
+    } else {
+        Class = window.Class;
+        Math2D = window.Math2D;
+        Entity = window.Entity;
+    }
+    EntityWorld = Class.extend({
         collisionSize: {},
         events: undefined, // an EventEmitter
         init: function (world, physicsWorld) {

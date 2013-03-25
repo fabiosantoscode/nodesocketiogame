@@ -25,13 +25,13 @@ test('visible()', function () {
     ok(!camera.visible(entity), 'right boundary, outside');
 });
 test('update()', function () {
-    var lookAt = {currentPosition: function () {return {x: 0, y: 0}}, size: {w: 10}},
+    var lookAt = {currentPosition: function () {return {x: 0, y: 0};}, size: {w: 10}},
         camera = cameraFactory(lookAt),
         oldPosition;
     camera.update();
     oldPosition = camera.offset;
     
-    lookAt.currentPosition = function () {return {x: 1, y: 0}};
+    lookAt.currentPosition = function () {return {x: 1, y: 0};};
     camera.update();
     equal(camera.offset, oldPosition + 1);
 });

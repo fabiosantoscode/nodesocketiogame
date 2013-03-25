@@ -1,7 +1,14 @@
 /*jshint browser: true, node: true*/
 (function () {
     'use strict';
-    var Camera;
+    var Camera,
+        Class;
+    if (require) {
+        require('./inheritance.js');
+        Class = this.Class;
+    } else {
+        Class = window.Class;
+    }
     Camera = Class.extend({
         offset: 0,
         init: function (lookAtEntity, world, canvasSize) {
@@ -51,6 +58,6 @@
     try {
         module.exports.Camera = Camera;
     } catch (e) {
-        window.Camera = Camera
+        window.Camera = Camera;
     }
 }());
