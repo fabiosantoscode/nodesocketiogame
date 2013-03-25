@@ -1,3 +1,6 @@
+/*globals asyncTest, deepEqual, equal, expect, module
+, notDeepEqual, notEqual, notStrictEqual, ok, QUnit,
+raises, start, stop, strictEqual, test */
 function cameraFactory (lookAt, world, canvasSize) {
     return new Camera(
         lookAt || {x:0},

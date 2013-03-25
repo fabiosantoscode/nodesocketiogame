@@ -1,3 +1,6 @@
+/*globals asyncTest, deepEqual, equal, expect, module
+, notDeepEqual, notEqual, notStrictEqual, ok, QUnit,
+raises, start, stop, strictEqual, test */
 (function (window) {
     'use strict';
     var Movement = window.Movement,

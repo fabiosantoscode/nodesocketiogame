@@ -1,3 +1,4 @@
+/*jshint browser: true */
 jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,

@@ -1,3 +1,4 @@
+/*jshint browser: true, node: true */
 (function (require, exports) {
     'use strict';
     if (require) {

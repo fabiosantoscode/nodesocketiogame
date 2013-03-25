@@ -1,3 +1,4 @@
+/*jshint browser: true, devel: true, node: true */
 (function () {
     'use strict';
     var EntityWorld = Class.extend({

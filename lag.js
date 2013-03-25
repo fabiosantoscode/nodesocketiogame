@@ -1,3 +1,4 @@
+/*jshint node: true*/
 'use strict';
 var _ = require('./underscore.js');
 module.exports = function (config) {
