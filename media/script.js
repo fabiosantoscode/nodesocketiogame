@@ -1,12 +1,12 @@
 jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
-        socket = io.connect('http://' + hostname + ':9090'),
+        socket = window.socket = io.connect('http://' + hostname + ':9090'),
         //Classes
         Class = window.Class,
         Movement = window.Movement,
-        Enemy,
-        Player,
+        Enemy = window.Enemy,
+        Player = window.Player,
         //Pawns
         player,
         playerSpeed = 350.0,
@@ -76,81 +76,9 @@ jQuery(function ($) {
         center: playerSprite.center
     };
 
-    Player = Entity.extend({
-        init: function (position, id, keyInput) {
-            this._super(position);
-            this.setUpKeys(keyInput || window.keyInput);
-            // TODO: do not do the following lines when entityWorld is integrated
-            this.listenToSocketEvents();
-            this.id = id;
-        },
-        tick: function (dt) {
-            
-        },
-        setUpKeys: function (keyInput) {
-            var sides;
-            sides = {
-                37: -1, /*left*/
-                38: 'jump', /*up*/
-                39: 1, /*right*/
-                40: 'crouch' /* down */
-            };
-            keyInput.onPress(function (key) {
-                var action = sides[key];
-                if (+action) { // Pressed a "side" key
-                    player.moveToSide(action);
-                }
-            });
-            keyInput.onRelease(function (key) {
-                var action = sides[key];
-                if (+action) { // Released a "side" key
-                    player.moveToSide(0);
-                }
-            });
-        },
-        wasMoving: null,
-        listenToSocketEvents: function () {
-            var that = this;
-            // TODO this event should be removed, or at least changed into waiting for EntityWorld.
-            socket.on('player-position-correct', function (data) {
-                that.position = data.expected;
-            });
-        },
-        moveToSide: function (side) {
-            // side: -1 (left), 0 (stop) or 1 (right)
-            var timestamp = +new Date(),
-                delta,
-                stopWhere,
-                worldQueryResult;
-            // TODO isn't it if (side === 0) ?
-            if (this.wasMoving) { // stopping
-                stopWhere = this.currentPosition(timestamp);
-                socket.emit('player-move', {
-                    position: stopWhere,
-                    direction: 0,
-                });
-                delta = this.delta;
-                this.stop(stopWhere);
-            } else {
-                socket.emit('player-move', {
-                    position: this.position,
-                    direction: side,
-                });
-                delta = {
-                    x: playerSpeed * side,
-                    y: 0
-                };
-                this.update({
-                    delta: delta,
-                    startedMoving: timestamp,
-                    position: this.position});
-            }
-            this.wasMoving = side;
-        }
-    });
-    Enemy = Entity.extend({
-        
-    });
+    // Stuff only for player entity
+    Player.speed = playerSpeed;
+
     enemiesList = {};
     function gameRenderLoop() {
         // Render to the "game" layer. Request frame updates from browser (or
