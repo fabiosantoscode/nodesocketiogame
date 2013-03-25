@@ -2,7 +2,8 @@
 (function () {
     'use strict';
     var Class,
-        Math2D;
+        Math2D,
+        World;
     try {
         Class = require('./inheritance.js').Class;
         Math2D = require('./math2d.js').Math2D;
@@ -10,7 +11,7 @@
         Class = window.Class;
         Math2D = window.Math2D;
     }
-    exports.World = Class.extend({
+    World = Class.extend({
         init: function (worldObjects, physicsWorld) {
             var objects = worldObjects || [
                     {
@@ -272,4 +273,9 @@
             }
         }
     });
+    try {
+        module.exports.World = World;
+    } catch (e) {
+        window.World = World;
+    }
 }());

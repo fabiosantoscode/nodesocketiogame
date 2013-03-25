@@ -3,10 +3,9 @@
     'use strict';
     var Camera,
         Class;
-    if (require) {
-        require('./inheritance.js');
-        Class = this.Class;
-    } else {
+    try {
+        Class = require('./inheritance.js').Class;
+    } catch (e) {
         Class = window.Class;
     }
     Camera = Class.extend({

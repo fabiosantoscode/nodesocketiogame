@@ -5,11 +5,11 @@
         Math2D,
         Entity,
         EntityWorld;
-    if (require) {
+    try {
         Class = require('./inheritance.js').Class;
         Math2D = require('./math2d.js').Math2D;
         Entity = require('./entity.js').Entity;
-    } else {
+    } catch (e) {
         Class = window.Class;
         Math2D = window.Math2D;
         Entity = window.Entity;
