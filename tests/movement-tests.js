@@ -47,18 +47,4 @@ raises, start, stop, strictEqual, test */
         entity.delta.x -= 20;
         ok(!entity.getExpectedStop(1000));
     });
-    test('freshest upcoming event', 2, function () {
-        var event = new FreshestUpcomingEvent();
-        event.on(function (data) {
-            equal(data, 3);
-        });
-        event.trigger(3);
-        
-        stop();
-        event.on(function () {
-            start();
-            ok(true);
-        });
-        event.later(10);
-    });
 }(window));
