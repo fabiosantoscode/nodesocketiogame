@@ -7,10 +7,11 @@
 
     Enemy = window.Enemy = Entity.extend({});
     Player = window.Player = Entity.extend({
-        init: function (position, id, keyInput, socket) {
+        init: function (position, id, keyInput, networkAdapter, temporarySocketIoInstance) {
             this._super(position);
             this.setUpKeys(keyInput || window.keyInput);
-            this.socket = socket || window.socket;
+            this.networkAdapter = networkAdapter || window.networkAdapter;
+            this.socket = temporarySocketIoInstance;
             // TODO: do not do the following lines when entityWorld is integrated
             this.listenToSocketEvents();
             this.id = id;
@@ -67,17 +68,12 @@
             }
             if (side === 0) { // stopping
                 stopWhere = this.currentPosition(timestamp);
-                this.socket.emit('player-move', {
-                    position: stopWhere,
-                    direction: 0
-                });
-                delta = this.delta;
-                this.stop(stopWhere);
+                this.networkAdapter.sendPlayerMovement(
+                    this, side);
+                this.stop(this.currentPosition());
             } else {
-                this.socket.emit('player-move', {
-                    position: this.currentPosition(timestamp),
-                    direction: side
-                });
+                this.networkAdapter.sendPlayerMovement(
+                    this, side);
                 delta = {
                     x: Player.speed * side,
                     y: 0

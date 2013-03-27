@@ -143,7 +143,13 @@ jQuery(function ($) {
                 delete enemiesList[id];
             });
             socket.emit('ready', function (creationData) {
-                player = new Player(creationData.position, creationData.id);
+                var adapter = new NetworkAdapter(window.socket);
+                player = new Player(
+                    creationData.position,
+                    creationData.id,
+                    keyInput,
+                    adapter,
+                    socket);
                 window.player = player;
                 console.log('all loaded');
                 camera = new Camera(player, world, canvasSize);
