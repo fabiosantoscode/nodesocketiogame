@@ -53,12 +53,18 @@
                 that.position = data.expected;
             });
         },
+        movingToSide: undefined,
         moveToSide: function (side) {
             // side: -1 (left), 0 (stop) or 1 (right)
             var timestamp = +new Date(),
                 delta,
                 stopWhere,
                 worldQueryResult;
+            if (side === this.movingToSide) {
+                return;
+            } else {
+                this.movingToSide = side;
+            }
             if (side === 0) { // stopping
                 stopWhere = this.currentPosition(timestamp);
                 this.socket.emit('player-move', {
