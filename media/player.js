@@ -34,9 +34,14 @@
                 }
             });
             keyInput.onRelease(function (key) {
-                var action = sides[key];
-                if (+action) { // Released a "side" key
-                    that.moveToSide(0);
+                if (+sides[key]) { // Released a "side" key
+                    if (keyInput.isPressed(39)) {
+                        that.moveToSide(sides[39]);
+                    } else if (keyInput.isPressed(37)) {
+                        that.moveToSide(sides[37]);
+                    } else {
+                        that.moveToSide(0);
+                    }
                 }
             });
         },
