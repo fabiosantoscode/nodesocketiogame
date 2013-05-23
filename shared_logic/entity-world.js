@@ -4,24 +4,83 @@
     var Class,
         Math2D,
         Entity,
+        World,
         EntityWorld;
-    try {
+    if (typeof require === 'function') {
         Class = require('./inheritance.js').Class;
         Math2D = require('./math2d.js').Math2D;
         Entity = require('./entity.js').Entity;
-    } catch (e) {
+        World = require('./world.js').World;
+    } else {
         Class = window.Class;
         Math2D = window.Math2D;
         Entity = window.Entity;
+        World = window.World;
     }
-    EntityWorld = Class.extend({
+    var Pawn = Entity.extend({
+        tellPeers: function () {
+            var packet = this.toPacket();
+            packet.upstreamPing = this.getPing();
+            this.getSocket().broadcast.emit('pawn-update', packet);
+        }
+    });
+    EntityWorld = World.extend({
         collisionSize: {},
         events: undefined, // an EventEmitter
-        init: function (world, physicsWorld) {
+        init: function () {
             this.entityCount = 0;
             this.uid = 1;
             this.version = 1; // unused in the client
             this.entities = {};
+        },
+        startServer: function (io) {
+            var that = this;
+            io.sockets.on('connection', function (socket) {
+                var player,
+                    playerSpeed = 350.0, // pixels per second.
+                    createData,
+                    playerPing = 100, // half a ping
+                    pinger;
+                that.socket = socket;
+                player = that.attach(new Pawn({x: 0, y: 479}));
+                player.getPing = function () {return playerPing;};
+                player.getSocket = function () {return socket;};
+                socket.on('ready', function (callback) {
+                    pinger();
+                    callback({
+                        position: player.position,
+                        id: player.id
+                    });
+                });
+                socket.on('player-move', function (data) {
+                    var timestamp = +new Date(),
+                        stopping = player.isMoving() && !data.direction;
+                    player.lastChanged = that.bumpVersion();
+                    player.partialUpdate({
+                        delta: {x: +data.direction * playerSpeed},
+                        startedMoving: timestamp
+                    }, true);
+                    if (stopping) {
+                        socket.emit('player-position-correct', {
+                            expected: player.currentPosition(timestamp)
+                        });
+                    }
+                });
+                pinger = function () {
+                    var pingStarted = +new Date();
+                    socket.once('pong-event', function () {
+                        playerPing = +new Date() - pingStarted;
+                        playerPing /= 2;
+                        pinger.timeout = setTimeout(pinger, 10000);
+                    });
+                    socket.emit('ping-event', playerPing);
+                };
+                socket.on('disconnect', function () {
+                    socket.broadcast.emit('pawn-remove', player.id);
+                    clearTimeout(pinger.timeout);
+                    that.detach(player);
+                });
+            });
         },
         getEntityCount: function () {
             return this.entityCount;
@@ -35,7 +94,7 @@
             this.uid += 1;
             entity.id = this.uid;
             this.entities[this.uid] = entity;
-            entity.entityWorld = this;
+            return entity;
         },
         detach: function (entity) {
             // (server-only) detach an entity
@@ -61,6 +120,7 @@
         },
         bumpVersion: function () {
             this.version += 1;
+            return this.version;
         },
         deltaCompress: function (fromVersion) {
             // Make a delta compressed version of the world

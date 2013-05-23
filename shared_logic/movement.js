@@ -7,11 +7,11 @@
         Math2D,
         EventEmitter,
         Class;
-    try {
+    if (typeof require === 'function') {
         Class = require('./inheritance.js').Class;
         Math2D = require('./math2d.js').Math2D;
-        EventEmitter = require('./eventemitter.js').EventEmitter;
-    } catch (e) {
+        EventEmitter = require('events').EventEmitter;
+    } else {
         // If in browser, appropriate stuff has already been included.
         Class = window.Class;
         Math2D = window.Math2D;

@@ -3,9 +3,9 @@
     'use strict';
     var Entity,
         Movement;
-    try {
+    if (typeof require === 'function') {
         Movement = require('./movement.js').Movement;
-    } catch (e) {
+    } else {
         Movement = window.Movement;
     }
     /*
@@ -30,20 +30,11 @@
     }
     Entity = Movement.extend({
         accelerationTime: 400,
-        init: function (position, entityWorld) {
-            this.position.x = position.x || 0;
-            this.position.y = position.y || 0;
-            this.entityWorld = entityWorld || undefined;
-            this.bump();
-        },
-        bump: function () {
-            if (this.entityWorld) {
-                this.lastChanged = this.entityWorld.getVersion();
-            }
+        init: function (position, collisionSize) {
+            this._super(position, collisionSize || {h: 0, w: 0});
         },
         partialUpdate: function (data, tellPeers) {
             this._super(data);
-            this.bump();
             if (tellPeers) {
                 this.tellPeers();
             }

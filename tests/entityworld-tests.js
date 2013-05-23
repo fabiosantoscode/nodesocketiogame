@@ -54,14 +54,6 @@ raises, start, stop, strictEqual, test, window
         cmp[ent2.id] = ent2.toPacket();
         deepEqual(data.entities, cmp);
     });
-    test('updating bumps entity version', function () {
-        var entw = new EntityWorld(),
-            ent1 = new Entity(Math2D.origin);
-        entw.bumpVersion();
-        entw.attach(ent1);
-        ent1.partialUpdate({position: {x: 6}});
-        equal(entw.getVersion(), ent1.lastChanged);
-    });
     test('delta uncompress', function () {
         // Compress entw with 2 entities into a new entity world,
         // Check that the new entity world contains the correct data.
