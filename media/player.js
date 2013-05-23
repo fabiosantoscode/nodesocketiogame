@@ -7,13 +7,11 @@
 
     Enemy = window.Enemy = Entity.extend({});
     Player = window.Player = Entity.extend({
-        init: function (position, id, keyInput, networkAdapter, temporarySocketIoInstance) {
+        init: function (position, id, keyInput, networkAdapter) {
             this._super(position);
             this.setUpKeys(keyInput || window.keyInput);
             this.networkAdapter = networkAdapter || window.networkAdapter;
-            this.socket = temporarySocketIoInstance;
             // TODO: do not do the following lines when entityWorld is integrated
-            this.listenToSocketEvents();
             this.id = id;
         },
         tick: function (dt) {
@@ -47,13 +45,6 @@
             });
         },
         wasMoving: null,
-        listenToSocketEvents: function () {
-            var that = this;
-            // TODO this event list. should be removed.
-            this.socket.on('player-position-correct', function (data) {
-                that.position = data.expected;
-            });
-        },
         movingToSide: undefined,
         moveToSide: function (side) {
             // side: -1 (left), 0 (stop) or 1 (right)

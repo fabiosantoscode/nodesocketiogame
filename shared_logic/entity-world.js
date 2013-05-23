@@ -1,30 +1,24 @@
 /*jshint browser: true, devel: true, node: true */
 (function () {
     'use strict';
-    var Class,
-        Math2D,
-        Entity,
-        World,
-        EntityWorld;
+    var client, server;
     if (typeof require === 'function') {
-        Class = require('./inheritance.js').Class;
-        Math2D = require('./math2d.js').Math2D;
-        Entity = require('./entity.js').Entity;
-        World = require('./world.js').World;
+        server = true;
+        var Class = require('./inheritance.js').Class;
+        var Math2D = require('./math2d.js').Math2D;
+        var Entity = require('./entity.js').Entity;
+        var World = require('./world.js').World;
+        var underscore = require('underscore');
     } else {
-        Class = window.Class;
-        Math2D = window.Math2D;
-        Entity = window.Entity;
-        World = window.World;
+        server = false;
+        var Class = window.Class;
+        var Math2D = window.Math2D;
+        var Entity = window.Entity;
+        var World = window.World;
+        var underscore = undefined;
     }
-    var Pawn = Entity.extend({
-        tellPeers: function () {
-            var packet = this.toPacket();
-            packet.upstreamPing = this.getPing();
-            this.getSocket().broadcast.emit('pawn-update', packet);
-        }
-    });
-    EntityWorld = World.extend({
+    client = !server;
+    var EntityWorld = World.extend({
         collisionSize: {},
         events: undefined, // an EventEmitter
         init: function () {
@@ -32,17 +26,20 @@
             this.uid = 1;
             this.version = 1; // unused in the client
             this.entities = {};
+            this._super();
+            if (underscore) {
+                this.send = underscore.throttle(this.send, 20);
+            }
         },
         startServer: function (io) {
             var that = this;
+            this.io = io;
             io.sockets.on('connection', function (socket) {
                 var player,
                     playerSpeed = 350.0, // pixels per second.
                     createData,
-                    playerPing = 100, // half a ping
-                    pinger;
-                that.socket = socket;
-                player = that.attach(new Pawn({x: 0, y: 479}));
+                    playerPing = 100; // half a ping
+                player = that.attach(new Entity({x: 0, y: 479}));
                 player.getPing = function () {return playerPing;};
                 player.getSocket = function () {return socket;};
                 socket.on('ready', function (callback) {
@@ -55,32 +52,42 @@
                 socket.on('player-move', function (data) {
                     var timestamp = +new Date(),
                         stopping = player.isMoving() && !data.direction;
-                    player.lastChanged = that.bumpVersion();
                     player.partialUpdate({
                         delta: {x: +data.direction * playerSpeed},
                         startedMoving: timestamp
                     });
-                    if (stopping) {
-                        socket.emit('player-position-correct', {
-                            expected: player.currentPosition(timestamp)
-                        });
-                    }
+                    player.lastChanged = that.bumpVersion();
                 });
-                pinger = function () {
+                var pinger = function () {
                     var pingStarted = +new Date();
                     socket.once('pong-event', function () {
-                        playerPing = +new Date() - pingStarted;
-                        playerPing /= 2;
+                        playerPing = (+new Date() - pingStarted) / 2;
                         pinger.timeout = setTimeout(pinger, 10000);
                     });
                     socket.emit('ping-event', playerPing);
                 };
                 socket.on('disconnect', function () {
-                    socket.broadcast.emit('pawn-remove', player.id);
                     clearTimeout(pinger.timeout);
                     that.detach(player);
                 });
             });
+        },
+        send: function () {
+            var that = this;
+            this.iterate(function (player) {
+                var compressed = that.deltaCompress(0),
+                    version = compressed.changed;
+                player.getSocket().emit('world-update', compressed);
+            });
+        },
+        startClient: function (socket, player) {
+            var that = this;
+            this.socket = socket;
+            this.player = player;
+            this.entities[player.id] = player;
+            this.socket.on('world-update', function (data) {
+                that.deltaUncompress(data);
+            })
         },
         getEntityCount: function () {
             return this.entityCount;
@@ -93,7 +100,7 @@
             this.entityCount += 1;
             this.uid += 1;
             entity.id = this.uid;
-            this.entities[this.uid] = entity;
+            this.entities[entity.id] = entity;
             return entity;
         },
         detach: function (entity) {
@@ -104,12 +111,12 @@
                 entity.id = undefined;
             }
         },
-        iterate: function (callback) {
+        iterate: function (callback, except) {
             var entities = this.entities,
                 ent;
             for (ent in entities) {
                 if (entities.hasOwnProperty(ent)) {
-                    if (entities[ent]) {
+                    if (entities[ent] && entities[ent] !== except) {
                         callback(entities[ent]);
                     }
                 }
@@ -120,9 +127,10 @@
         },
         bumpVersion: function () {
             this.version += 1;
+            this.send();
             return this.version;
         },
-        deltaCompress: function (fromVersion) {
+        deltaCompress: function (fromVersion, except) {
             // Make a delta compressed version of the world
             // (Check which objects have changed. This client only needs to know those.)
             var data = {
@@ -133,7 +141,7 @@
                 if (entity.lastChanged > fromVersion || entity.lastChanged === undefined) {
                     data.entities[entity.id] = entity.toPacket();
                 }
-            });
+            }, except);
             return data;
         },
         deltaUncompress: function (data) {
@@ -146,13 +154,15 @@
             // Is this out of date?
             if (ordinal < this.latestUpdateReceived) {
                 return false;
+            } else {
+                this.latestUpdateReceived = ordinal;
             }
-            console.log(entities);
             for (id in entities) {
                 if (entities.hasOwnProperty(id)) {
                     if (this.entities[id] === undefined) {
                         this.entities[id] = new Entity(Math2D.origin, this);
                         this.entities[id].id = +id;
+                        this.entityCount += 1;
                     }
                     entity = this.entities[id];
                     entity.partialUpdate(data.entities[id]);
@@ -161,9 +171,9 @@
             return true;
         }
     });
-    try {
+    if (server) {
         module.exports.EntityWorld = EntityWorld;
-    } catch (e) {
+    } else {
         window.EntityWorld = EntityWorld;
     }
 }());

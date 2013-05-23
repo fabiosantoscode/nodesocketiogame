@@ -68,7 +68,7 @@ raises, start, stop, strictEqual, test, window
         ent2.partialUpdate({position: {y: -1}});
         ent1.partialUpdate({position: {y: -1}});
         data = entw.deltaCompress(-1);
-	data.changed = 65536; // force entw2 to take it as the most recent
+        data.changed = 65536; // force entw2 to take it as the most recent
         entw2.deltaUncompress(data);
         deepEqual(entw2.entities[ent2.id].toPacket(), ent2.toPacket());
         deepEqual(entw2.entities[ent1.id].toPacket(), ent1.toPacket());

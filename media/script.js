@@ -15,7 +15,7 @@ jQuery(function ($) {
         //World
         Camera = window.Camera,
         camera,
-        world = new window.World(),
+        world = window.world = new window.EntityWorld(),
         //Utils
         Math2D = window.Math2D,
         enemiesList = {},
@@ -97,18 +97,17 @@ jQuery(function ($) {
         renderLoop = function () {
             var ctx = gameCanvasContext,
                 player = window.player,
-                enemies = enemiesList,
                 enemyID,
                 time = +new Date();
             if (camera) {
                 ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
                 camera.update();
-                for (enemyID in enemies) {
-                    if (enemies.hasOwnProperty(enemyID)) {
-                        camera.draw(enemies[enemyID], ctx, time);
-                    }
-                }
-                camera.draw(player, ctx, time);
+                
+                world.iterate(function (enemy) {
+                    camera.draw(enemy, ctx, time);
+                });
+                // camera.draw(player, ctx, time);
+                
                 world.drawWorld(ctx, camera);
             }
             requestAnimationFrame(renderLoop, gameCanvas); // schedule next frame draw
@@ -132,16 +131,6 @@ jQuery(function ($) {
         var $list = $('ul.announcements');
         // Start stuff up after every event has happened.
         if (playerSpriteLoaded) {
-            socket.on('pawn-update', function (data) {
-                var enemy = enemiesList[data.id];
-                if (enemy === undefined) {
-                    enemiesList[data.id] = new Enemy(data.position);
-                }
-                enemy.update(data);
-            });
-            socket.on('pawn-remove', function (id) {
-                delete enemiesList[id];
-            });
             socket.emit('ready', function (creationData) {
                 var adapter = new NetworkAdapter(window.socket);
                 player = new Player(
@@ -152,6 +141,7 @@ jQuery(function ($) {
                     socket);
                 window.player = player;
                 console.log('all loaded');
+                world.startClient(socket, player);
                 camera = new Camera(player, world, canvasSize);
             });
             window.announce = function (text, type) {
