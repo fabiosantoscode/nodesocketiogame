@@ -40,7 +40,7 @@ jQuery(function ($) {
         gameCanvasContext = gameCanvas.getContext('2d'),
         debugCanvas = document.getElementById('debugcanvas'),
         debugCanvasContext = debugCanvas.getContext('2d'),
-        fps = 60,
+        fps = 30,
         fpsInterval = 1000 / fps,
         requestAnimationFrame =
             window.requestAnimationFrame ||

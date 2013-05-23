@@ -4,7 +4,7 @@
     var config = {
             media: __dirname + "/media",
             sharedLogic: __dirname + "/shared_logic",
-            httport: 8080,
+            httpport: 8080,
             socketioport: 9090,
             msgLimit: 100,
             tickInterval: 5000,
@@ -15,13 +15,10 @@
         Math2D = require('./shared_logic/math2d.js').Math2D,
         Entity = require('./shared_logic/entity.js').Entity,
         Pawn,
-        // _ = require('./underscore.js'),
-        // url = require('url'),
         app = express(),
         EventEmitter = require('events').EventEmitter,
-        globalUpdateEvent = new EventEmitter(),
         debugInfoChannel = new EventEmitter(),
-        server = http.createServer(app),
+        server = http.createServer(),
         io = require('socket.io').listen(server),
         induceLag = require('./lag.js')(config).makeInducer,
         worldFloor = 479,
@@ -49,8 +46,7 @@
             playerSpeed = 350.0, // pixels per second.
             createData,
             playerPing = 100, // half a ping
-            pinger,
-            globalUpdateEventHandler;
+            pinger;
         playerID += 1;
         player = new Pawn({x: 0, y: worldFloor}, playerID);
         createData = {
@@ -59,12 +55,9 @@
         };
         player.getPing = function () {return playerPing;};
         player.getSocket = function () {return socket;};
-        globalUpdateEventHandler = function () {
-        };
         socket.on('ready', function (callback) {
             pinger();
             callback(createData);
-            globalUpdateEvent.on('tick', globalUpdateEventHandler);
         });
         socket.on('player-move', function (data) {
             var timestamp, stopping;
@@ -98,36 +91,21 @@
                 playerPing += config.lag;
                 playerPing /= 2;
                 alreadyCalled = true;
-                setTimeout(pinger, 5000);
+                pinger.timeout = setTimeout(pinger, 10000);
             });
             socket.emit('ping-event', playerPing);
         };
         socket.on('disconnect', function () {
             socket.broadcast.emit('pawn-remove', player.id);
-            globalUpdateEvent.removeListener('tick', globalUpdateEventHandler);
+            clearTimeout(pinger.timeout);
         });
     });
-    (function () {
-        var globalUpdateData = [];
-        function tickGlobalEvents() {
-            globalUpdateEvent.once('tick', function () {
-                // Runs when all events have been dealt with
-                // (EventEmitter.emit calls them in order of attachment)
-                io.sockets.emit('global-update', globalUpdateData);
-                globalUpdateData = [];
-            });
-            globalUpdateEvent.emit('tick', function (data) {
-                globalUpdateData.push(data);
-            });
-        }
-        setInterval(tickGlobalEvents, config.tickInterval);
-    }());
     debugInfoChannel.on('key', function (data) {
         // the "key frames"
         io.sockets.emit('debug-key', data);
     });
-    server.listen(config.socketioport);
     console.log('socket.io on ' + config.socketioport);
     console.log('listening on ' + config.httport);
-    app.listen(config.httport);
+    app.listen(config.httpport);
+    server.listen(config.socketioport);
 }());
