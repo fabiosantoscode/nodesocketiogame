@@ -59,7 +59,7 @@
                     player.partialUpdate({
                         delta: {x: +data.direction * playerSpeed},
                         startedMoving: timestamp
-                    }, true);
+                    });
                     if (stopping) {
                         socket.emit('player-position-correct', {
                             expected: player.currentPosition(timestamp)
