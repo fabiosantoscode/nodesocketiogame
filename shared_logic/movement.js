@@ -22,18 +22,15 @@
     };
     Movement = Class.extend({
         movementStart: undefined, //if undefined then stopped
-        position: {x: 0, y: 0},
-        delta: {x: 0, y: 0},
-        size: {w: 0, h: 0},
         accelerationTime: 0,
         // TODO gravity and being affected by it.
         // TODO accel too.
-        collisionSize: {},
         events: undefined, // an EventEmitter
         init: function (position, collisionSize) {
             this.events = new EventEmitter();
-            this.collisionSize = collisionSize;
-            this.position = position;
+            this.collisionSize = collisionSize || {x: 0, y: 0};
+            this.position = position || {x: 0, y: 0};
+            this.delta = {x: 0, y: 0};
         },
         getExpectedStop: function (secondsLimit) {
             // Get whether and when this box is going to stop.
@@ -75,33 +72,7 @@
                 this.delta.x = data.delta.x === undefined ? this.delta.x : data.delta.x;
                 this.delta.y = data.delta.y === undefined ? this.delta.y : data.delta.y;
             }
-        }/*,
-        onExpectedStop: function (callback, world) {
-            this.startExpectedStopEventLoop();
-            this.events.on('haveToStop', callback);
-        },
-        startExpectedStopEventLoop: function () {
-            if (!this.expectedStopEventLoopStarted) {
-                this.expectedStopEventLoop();
-            }
-        },
-        expectedStopEventLoopStarted: false,
-        expectedStopEventLoop: function () {
-            // This is for walking and being able to setTimeout and warning the entity to change direction.
-            var worldQueryResult,
-                that = this;
-            worldQueryResult = this.getExpectedStop(1000);
-            if (worldQueryResult) {
-                setTimeout(function () {
-                    that.events.emit('haveToStop', worldQueryResult);
-                }, worldQueryResult.time);
-                this.expectedStopEventLoopStarted = false;
-            } else {
-                setTimeout(function () {
-                    that.expectedStopEventLoop();
-                }, 1000);
-            }
-        }*/
+        }
     });
     try {
         module.exports.Movement = Movement;

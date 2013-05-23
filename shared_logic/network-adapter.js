@@ -20,7 +20,8 @@
         sendPlayerMovement: function (player, side) {
             this.socket.emit('player-move', {
                 position: player.currentPosition(),
-                direction: side
+                direction: side,
+                id: player.id
             });
         }
     });
