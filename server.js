@@ -14,6 +14,7 @@
         app = express(),
         EntityWorld = require('./shared_logic/entity-world.js').EntityWorld,
         world;
+    
     app
         .use(express.bodyParser())
         .use("/media", express['static'](config.media))

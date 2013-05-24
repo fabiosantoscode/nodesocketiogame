@@ -27,8 +27,10 @@
             this.version = 1; // unused in the client
             this.entities = {};
             this._super();
-            if (underscore) {
+            if (server) {
                 this.send = underscore.throttle(this.send, 20);
+            } else {
+                this.send = function () {};
             }
         },
         startServer: function (io) {
@@ -107,17 +109,22 @@
             // (server-only) detach an entity
             if (this.entities[entity.id]) {
                 this.entityCount -= 1;
-                delete this.entities[entity.id];
-                entity.id = undefined;
+                this.entities[entity.id] = {
+                        id: entity.id,
+                        removed: true,
+                        lastChanged: this.bumpVersion()
+                    };
             }
         },
-        iterate: function (callback, except) {
+        iterate: function (callback, findRemoved) {
             var entities = this.entities,
                 ent;
             for (ent in entities) {
                 if (entities.hasOwnProperty(ent)) {
-                    if (entities[ent] && entities[ent] !== except) {
-                        callback(entities[ent]);
+                    if (entities[ent]) {
+                        if ((!entities[ent].removed) || findRemoved) {
+                            callback(entities[ent]);
+                        }
                     }
                 }
             }
@@ -130,7 +137,7 @@
             this.send();
             return this.version;
         },
-        deltaCompress: function (fromVersion, except) {
+        deltaCompress: function (fromVersion) {
             // Make a delta compressed version of the world
             // (Check which objects have changed. This client only needs to know those.)
             var data = {
@@ -138,10 +145,14 @@
                     entities: {}
                 };
             this.iterate(function (entity) {
-                if (entity.lastChanged > fromVersion || entity.lastChanged === undefined) {
-                    data.entities[entity.id] = entity.toPacket();
+                if (entity.lastChanged >= fromVersion || entity.lastChanged === undefined) {
+                    if (entity.toPacket) {
+                        data.entities[entity.id] = entity.toPacket();
+                    } else if (entity.removed) {
+                        data.entities[entity.id] = entity;
+                    }
                 }
-            }, except);
+            }, true);
             return data;
         },
         deltaUncompress: function (data) {
@@ -159,6 +170,10 @@
             }
             for (id in entities) {
                 if (entities.hasOwnProperty(id)) {
+                    if (entities[id].removed) {
+                        delete this.entities[id];
+                        continue;
+                    }
                     if (this.entities[id] === undefined) {
                         this.entities[id] = new Entity(Math2D.origin, this);
                         this.entities[id].id = +id;

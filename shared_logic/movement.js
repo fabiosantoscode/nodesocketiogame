@@ -5,17 +5,14 @@
         SetMovementWorld,
         Movement,
         Math2D,
-        EventEmitter,
         Class;
     if (typeof require === 'function') {
         Class = require('./inheritance.js').Class;
         Math2D = require('./math2d.js').Math2D;
-        EventEmitter = require('events').EventEmitter;
     } else {
         // If in browser, appropriate stuff has already been included.
         Class = window.Class;
         Math2D = window.Math2D;
-        EventEmitter = window.EventEmitter;
     }
     SetMovementWorld = function (newWorld) {
         world = newWorld;
@@ -25,9 +22,8 @@
         accelerationTime: 0,
         // TODO gravity and being affected by it.
         // TODO accel too.
-        events: undefined, // an EventEmitter
         init: function (position, collisionSize) {
-            this.events = new EventEmitter();
+            this.size = collisionSize || {x: 0, y: 0};
             this.collisionSize = collisionSize || {x: 0, y: 0};
             this.position = position || {x: 0, y: 0};
             this.delta = {x: 0, y: 0};
