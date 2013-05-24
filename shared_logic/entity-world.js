@@ -60,6 +60,9 @@
                     });
                     player.lastChanged = that.bumpVersion();
                 });
+                socket.on('world-update-ack', function (version) {
+                    player.latestAck = version;
+                });
                 var pinger = function () {
                     var pingStarted = +new Date();
                     socket.once('pong-event', function () {
@@ -77,7 +80,7 @@
         send: function () {
             var that = this;
             this.iterate(function (player) {
-                var compressed = that.deltaCompress(0),
+                var compressed = that.deltaCompress(player.latestAck || 0),
                     version = compressed.changed;
                 player.getSocket().emit('world-update', compressed);
             });
@@ -89,6 +92,7 @@
             this.entities[player.id] = player;
             this.socket.on('world-update', function (data) {
                 that.deltaUncompress(data);
+                that.socket.emit('world-update-ack', data.changed);
             })
         },
         getEntityCount: function () {
