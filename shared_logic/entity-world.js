@@ -50,13 +50,12 @@
                         position: player.position,
                         id: player.id
                     });
+                    that.sendTo(player);
                 });
                 socket.on('player-move', function (data) {
-                    var timestamp = +new Date(),
-                        stopping = player.isMoving() && !data.direction;
                     player.partialUpdate({
                         delta: {x: +data.direction * playerSpeed},
-                        startedMoving: timestamp
+                        startedMoving: +new Date()
                     });
                     player.lastChanged = that.bumpVersion();
                 });
@@ -78,12 +77,11 @@
             });
         },
         send: function () {
-            var that = this;
-            this.iterate(function (player) {
-                var compressed = that.deltaCompress(player.latestAck || 0),
-                    version = compressed.changed;
-                player.getSocket().emit('world-update', compressed);
-            });
+            this.iterate(this.sendTo.bind(this));
+        },
+        sendTo: function (player) {
+            var compressed = this.deltaCompress(player.latestAck || -1);
+            player.getSocket().emit('world-update', compressed);
         },
         startClient: function (socket, player) {
             var that = this;
@@ -182,6 +180,8 @@
                         this.entities[id] = new Entity(Math2D.origin, this);
                         this.entities[id].id = +id;
                         this.entityCount += 1;
+		                console.log('created entity ' + id)
+		                console.log(this.entities[id])
                     }
                     entity = this.entities[id];
                     entity.partialUpdate(data.entities[id]);
