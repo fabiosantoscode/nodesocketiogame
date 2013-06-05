@@ -19,8 +19,6 @@
     }
     client = !server;
     var EntityWorld = World.extend({
-        collisionSize: {},
-        events: undefined, // an EventEmitter
         init: function () {
             this.entityCount = 0;
             this.uid = 1;
@@ -122,13 +120,13 @@
         },
         iterate: function (callback, findRemoved) {
             var entities = this.entities,
+                id,
                 ent;
-            for (ent in entities) {
-                if (entities.hasOwnProperty(ent)) {
-                    if (entities[ent]) {
-                        if ((!entities[ent].removed) || findRemoved) {
-                            callback(entities[ent]);
-                        }
+            for (id in entities) {
+                ent = entities[id];
+                if (ent && entities.hasOwnProperty(id)) {
+                    if ((!ent.removed) || findRemoved) {
+                        callback(ent);
                     }
                 }
             }
@@ -153,7 +151,7 @@
                     if (entity.toPacket) {
                         data.entities[entity.id] = entity.toPacket();
                     } else if (entity.removed) {
-                        data.entities[entity.id] = entity;
+                        data.entities[entity.id] = entity;  // send an object with a "removed" key
                     }
                 }
             }, true);
