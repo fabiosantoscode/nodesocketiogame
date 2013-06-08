@@ -41,16 +41,20 @@ jQuery(function ($) {
         // For compensating timestamp calculations.
         ownPing,
         // Intervals
-        fps = 20,
+        fps = 12,
         fpsInterval = 1000 / fps,
         logicTicks = 12, // per second
         logicTickInterval = 1000 / logicTicks,
         // Worlds
-        physicsWorld = window.physicsWorld = new window.PhysicsWorld(),
+        PhysicsWorld = window.PhysicsWorld,
+        physicsWorld = window.physicsWorld = new PhysicsWorld(logicTickInterval),
         world = window.world = new window.EntityWorld(null, physicsWorld);
     playerSprite.image.src = '/media/bacano.png';
 
 
+    physicsWorld.setUpDebugDraw({
+        canvasContext: debugCanvasContext,
+        scale: 50})
     // Stuff every entity needs from this scope
     Entity.prototype.getPing = function () {
         return ownPing;
@@ -98,6 +102,7 @@ jQuery(function ($) {
                 dt = newTime - oldTime;
             // entityWorld.frame();
             keyInput.frame();
+            physicsWorld.frame();
             setTimeout(loop, logicTickInterval);
             oldTime = +new Date();
         };
