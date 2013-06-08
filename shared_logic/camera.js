@@ -41,11 +41,25 @@
             position = this.offsetCoordinates(position).x;
             return (position + size.w >= 0 && position <= this.canvasSize.w);
         },
-        draw: function (entity, ctx, time) {
-            entity.draw(time || +new Date(),
-                ctx,
-                this.offsetCoordinates(
-                    entity.currentPosition(time)));
+        drawEntity: function (entity, ctx, time) {
+            var sprite = entity.sprite,
+                coordinates = this.offsetCoordinates(entity.currentPosition(time)),
+                deCentered = Math2D.vectorAdd(sprite.center, coordinates);
+            ctx.drawImage(sprite.image, deCentered.x, deCentered.y);
+        },
+        drawWorld: function(world, ctx) {
+            var obj,
+                staticObjects = world.getObjects(),
+                len = staticObjects.length;
+            for (var i = 0; i < len; i += 1) {
+                obj = staticObjects[i];
+                var pos = this.offsetCoordinates(obj.position);
+                var size = obj.size;
+                if (obj.type === 'platform') {
+                    ctx.fillStyle = '#000000';
+                    ctx.strokeRect(pos.x, pos.y, size.w, size.h);
+                }
+            }
         },
         toBox: function () {
             return {
