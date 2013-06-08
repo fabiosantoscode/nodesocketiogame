@@ -38,10 +38,10 @@
             this.io = io;
             io.sockets.on('connection', function (socket) {
                 var player,
-                    playerSpeed = 350.0, // pixels per second.
+                    playerSpeed = 7, // per second
                     createData,
                     playerPing = 100; // half a ping
-                player = that.attach(new Entity({x: 0, y: 479}));
+                player = that.attach(new Entity({x: 0, y: 9.5}));
                 player.getPing = function () {return playerPing;};
                 player.getSocket = function () {return socket;};
                 socket.on('ready', function (callback) {
