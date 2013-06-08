@@ -180,8 +180,6 @@
                         this.entities[id] = new Entity(Math2D.origin, this);
                         this.entities[id].id = +id;
                         this.entityCount += 1;
-		                console.log('created entity ' + id)
-		                console.log(this.entities[id])
                     }
                     entity = this.entities[id];
                     entity.partialUpdate(data.entities[id]);
