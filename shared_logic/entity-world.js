@@ -21,12 +21,12 @@
     var EntityWorld = World.extend({
         collisionSize: {},
         events: undefined, // an EventEmitter
-        init: function () {
+        init: function (worldObjects, physicsWorld) {
             this.entityCount = 0;
             this.uid = 1;
             this.version = 1; // unused in the client
             this.entities = {};
-            this._super();
+            this._super(worldObjects, physicsWorld);
             if (server) {
                 this.send = underscore.throttle(this.send, 20);
             } else {

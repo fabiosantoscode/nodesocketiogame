@@ -9,13 +9,17 @@ jQuery(function ($) {
         Entity = window.Entity,
         Enemy = window.Enemy,
         Player = window.Player,
+        // Canvases
+        gameCanvas = document.getElementById('gamecanvas'),
+        gameCanvasContext = gameCanvas.getContext('2d'),
+        debugCanvas = document.getElementById('debugcanvas'),
+        debugCanvasContext = debugCanvas.getContext('2d'),
         //Pawns
         player,
         playerSpeed = 350.0,
         //World
         Camera = window.Camera,
         camera,
-        world = window.world = new window.EntityWorld(),
         //Utils
         Math2D = window.Math2D,
         enemiesList = {},
@@ -36,12 +40,14 @@ jQuery(function ($) {
         },
         // For compensating timestamp calculations.
         ownPing,
-        gameCanvas = document.getElementById('gamecanvas'),
-        gameCanvasContext = gameCanvas.getContext('2d'),
+        // Intervals
         fps = 20,
         fpsInterval = 1000 / fps,
         logicTicks = 12, // per second
-        logicTickInterval = 1000 / logicTicks;
+        logicTickInterval = 1000 / logicTicks,
+        // Worlds
+        physicsWorld = window.physicsWorld = new window.PhysicsWorld(),
+        world = window.world = new window.EntityWorld(null, physicsWorld);
     playerSprite.image.src = '/media/bacano.png';
 
 
