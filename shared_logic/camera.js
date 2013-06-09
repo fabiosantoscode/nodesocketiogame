@@ -23,14 +23,12 @@
         absoluteCoordinates: function (v) {
             return {
                 x: (v.x + this.pixelOffset) / this.scale,
-                y: (v.y) / this.scale
-            };
+                y: (v.y) / this.scale};
         },
         offsetCoordinates: function (v) {
             return {
                 x: v.x - this.offset,
-                y: v.y
-            };
+                y: v.y};
         },
         scaleCoordinates: function (v) {
             return {

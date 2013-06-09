@@ -29,7 +29,7 @@
     var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
     var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
     
-    function makeBody (physicsWorld, details) {
+    function makeBody(physicsWorld, details) {
         // adapted from http://buildnewgames.com/box2dweb/
         details = details || {};
         var definition = new b2BodyDef();
@@ -90,7 +90,7 @@
     };
     
     var fixtureDefaults = {
-        density: 1,
+        density: 2,
         friction: 1,
         restitution: 0.2
     };
@@ -105,32 +105,11 @@
         fixedRotation: false
     };
     
-    if (window) {
-        window.makeBody = makeBody
-        setTimeout(function () {
-            makeBody(physicsWorld, {
-                type: "static", x: 4, y: 0, height: 0.1, width: 50 });
-
-            makeBody(physicsWorld, {x: 5, y: 3 });
-            makeBody(physicsWorld, {x: 2, y: 3 });
-            makeBody(physicsWorld, {x: 8, y: 3 });
-        }, 1000)
-    }
-    
     var PhysicsWorld = Class.extend({
         init: function (timeStep) {
             this.timeStep = timeStep;
             var gravity = new b2Vec2(0, 9.8);
             this.box2dWorld = new b2World(gravity, true);
-        },
-        setUpDebugDraw: function (debugOptions) {
-            var debugDraw = this.debugDraw = new b2DebugDraw();
-            debugDraw.SetSprite(debugOptions.canvasContext);
-            debugDraw.SetDrawScale(debugOptions.scale);
-            debugDraw.SetFillAlpha(0.3);
-            debugDraw.SetLineThickness(1.0);
-            debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-            this.box2dWorld.SetDebugDraw(debugDraw);
         },
         frame: function () {
             this.box2dWorld.Step(this.timeStep, 5, 2);
@@ -138,6 +117,26 @@
                 this.box2dWorld.DrawDebugData();
             }
         },
+        setUpDebugDraw: function (debugOptions) {
+            var debug = new b2DebugDraw();
+            this.debugDraw = true;
+            debug.SetSprite(debugOptions.canvasContext);
+            debug.SetDrawScale(50);
+            debug.SetFillAlpha(0.3);
+            debug.SetLineThickness(1.0);
+            debug.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+            this.box2dWorld.SetDebugDraw(debug);
+        },
+        setUpDebugDropThings: function (canvas, camera) {
+            var $ = window.jQuery;
+            var that = this;
+            $(canvas).click(function (e) {
+                var offs = $(this).offset();
+                makeBody(that, camera.absoluteCoordinates({
+                    x: e.pageX - offs.left,
+                    y: e.pageY - offs.top}));
+            });
+        }
     });
     if (server) {
         module.exports.PhysicsWorld = PhysicsWorld;

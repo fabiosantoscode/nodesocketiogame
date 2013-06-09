@@ -51,10 +51,6 @@ jQuery(function ($) {
         world = window.world = new window.EntityWorld(null, physicsWorld);
     playerSprite.image.src = '/media/bacano.png';
 
-
-    physicsWorld.setUpDebugDraw({
-        canvasContext: debugCanvasContext,
-        scale: 50})
     // Stuff every entity needs from this scope
     Entity.prototype.getPing = function () {
         return ownPing;
@@ -108,6 +104,13 @@ jQuery(function ($) {
         };
         loop();
     }
+    function debugSetUp() {
+        // TODO debug only if there's a ?debug GET param.
+        physicsWorld.setUpDebugDraw({
+            canvasContext: debugCanvasContext,
+            scale: 50});
+        physicsWorld.setUpDebugDropThings(debugCanvas, camera);
+    }
     function tryInit() {
         // Start stuff up after every event has happened.
         if (playerSpriteLoaded) {
@@ -126,7 +129,8 @@ jQuery(function ($) {
             window.player = player;
             console.log('all loaded');
             world.startClient(socket, player);
-            camera = new Camera(player, world, canvasSize);
+            window.camera = camera = new Camera(player, world, canvasSize);
+            debugSetUp();
         });
         socket.on('ping-event', function (ping) {
             ownPing = ping;
