@@ -43,7 +43,7 @@
         update: function (dt) {
             this.offset = this.lookAtEntity.currentPosition().x -
                 ((this.canvasSize.w / this.scale) / 2);
-            this.pixelOffset = this.offset / this.scale;
+            this.pixelOffset = this.offset * this.scale;
         },
         visible: function (position, size) {
             if (size === undefined) {
