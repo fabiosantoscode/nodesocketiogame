@@ -103,11 +103,11 @@
     var PhysicsWorld = Class.extend({
         init: function (timeStep) {
             this.timeStep = timeStep;
-            var gravity = new b2Vec2(0, 9.8);
+            var gravity = new b2Vec2(0, 5);
             this.box2dWorld = new b2World(gravity, true);
         },
         frame: function () {
-            this.box2dWorld.Step(this.timeStep, 5, 2);
+            this.box2dWorld.Step(this.timeStep / 1000, 8, 3);
             if (this.debugDraw) {
                 this.box2dWorld.DrawDebugData();
             }
@@ -130,9 +130,13 @@
             var that = this;
             $(canvas).click(function (e) {
                 var offs = $(this).offset();
-                that.makeBody(camera.absoluteCoordinates({
+                var coords = camera.absoluteCoordinates({
                     x: e.pageX - offs.left,
-                    y: e.pageY - offs.top}));
+                    y: e.pageY - offs.top});
+                that.makeBody({
+                    x: coords.x,
+                    y: coords.y
+                });
             });
         }
     });
