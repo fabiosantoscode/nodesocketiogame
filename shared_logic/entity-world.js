@@ -36,10 +36,10 @@
             this.io = io;
             io.sockets.on('connection', function (socket) {
                 var player,
-                    playerSpeed = 350.0, // pixels per second.
+                    playerSpeed = 7, // per second
                     createData,
                     playerPing = 100; // half a ping
-                player = that.attach(new Entity({x: 0, y: 479}));
+                player = that.attach(new Entity({x: 0, y: 9.5}));
                 player.getPing = function () {return playerPing;};
                 player.getSocket = function () {return socket;};
                 socket.on('ready', function (callback) {
@@ -48,13 +48,12 @@
                         position: player.position,
                         id: player.id
                     });
+                    that.sendTo(player);
                 });
                 socket.on('player-move', function (data) {
-                    var timestamp = +new Date(),
-                        stopping = player.isMoving() && !data.direction;
                     player.partialUpdate({
                         delta: {x: +data.direction * playerSpeed},
-                        startedMoving: timestamp
+                        startedMoving: +new Date()
                     });
                     player.lastChanged = that.bumpVersion();
                 });
@@ -76,12 +75,11 @@
             });
         },
         send: function () {
-            var that = this;
-            this.iterate(function (player) {
-                var compressed = that.deltaCompress(player.latestAck || 0),
-                    version = compressed.changed;
-                player.getSocket().emit('world-update', compressed);
-            });
+            this.iterate(this.sendTo.bind(this));
+        },
+        sendTo: function (player) {
+            var compressed = this.deltaCompress(player.latestAck || -1);
+            player.getSocket().emit('world-update', compressed);
         },
         startClient: function (socket, player) {
             var that = this;

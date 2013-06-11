@@ -16,18 +16,13 @@
             var objects = worldObjects || [
                     {
                         type: 'platform',
-                        position: {x: 60, y: 400},
-                        size: {w: 200, h: 5},
+                        position: {x: 2, y: 5},
+                        size: {w: 3, h: 0.1},
                         collision: 'rect'
                     }, {
                         type: 'platform',
-                        position: {x: 30, y: 300},
-                        size: {w: 100, h: 5},
-                        collision: 'rect'
-                    }, {
-                        type: 'platform',
-                        position: {x: 350, y: 410},
-                        size: {w: 100, h: 200},
+                        position: {x: -1, y: 6},
+                        size: {w: 4, h: 0.1},
                         collision: 'rect'
                     }
                 ],
@@ -71,34 +66,6 @@
                 return false;
             } else {
                 return result;
-            }
-        },
-        drawWorld: function(ctx, camera) {
-            // Draw every platform in the game world,
-            // taking into account a global offset value, given by the camera.
-            var i,
-                objects = this.getObjects(),
-                obj,
-                pos, size,
-                cameraShape,
-                len;
-            if (camera) {
-                cameraShape = camera.toBox();
-                objects = this.boxInWorld(
-                    cameraShape.position,
-                    cameraShape.size,
-                    false,
-                    objects);
-            }
-            len = objects.length;
-            for (i = 0; i < len; i += 1) {
-                obj = objects[i];
-                pos = camera ? camera.offsetCoordinates(obj.position) : obj.position;
-                size = obj.size;
-                if (obj.type === 'platform') {
-                    ctx.fillStyle = '#000000';
-                    ctx.strokeRect(pos.x, pos.y, size.w, size.h);
-                }
             }
         },
         polyInWorld: function (pts, boolean, inElements) {

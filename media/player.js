@@ -11,7 +11,6 @@
             this._super(position);
             this.setUpKeys(keyInput || window.keyInput);
             this.networkAdapter = networkAdapter || window.networkAdapter;
-            // TODO: do not do the following lines when entityWorld is integrated
             this.id = id;
         },
         tick: function (dt) {
