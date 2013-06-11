@@ -18,12 +18,32 @@
                         type: 'platform',
                         position: {x: 2, y: 5},
                         size: {w: 3, h: 0.1},
-                        collision: 'rect'
+                        collision: 'block'
                     }, {
                         type: 'platform',
                         position: {x: -1, y: 6},
                         size: {w: 4, h: 0.1},
-                        collision: 'rect'
+                        collision: 'block'
+                    }, {
+                        type: 'platform',
+                        position: {x: -10, y: 9},
+                        size: {w: 20, h: 1},
+                        collision: 'block'
+                    }, {
+                        type: 'platform',
+                        position: {x: -10, y: 0},
+                        size: {w: 20, h: 1},
+                        collision: 'block'
+                    }, {
+                        type: 'platform',
+                        position: {x: -10, y: 1},
+                        size: {w: 1, h: 8},
+                        collision: 'block'
+                    }, {
+                        type: 'platform',
+                        position: {x: 9, y: 1},
+                        size: {w: 1, h: 8},
+                        collision: 'block'
                     }
                 ],
                 i;
@@ -35,6 +55,16 @@
         },
         addStatic: function (object) {
             this.objects.push(object);
+            if (this.physicsWorld) {
+                this.physicsWorld.makeBody({
+                    x: object.position.x + (object.size.w / 2),
+                    y: object.position.y + (object.size.h / 2),
+                    type: 'static',
+                    shape: object.collision,
+                    width: object.size.w,
+                    height: object.size.h,
+                });
+            }
         },
         getObjects: function (startx, endx, starty, endy) {
             // Constant and not quadtree optimized for now.

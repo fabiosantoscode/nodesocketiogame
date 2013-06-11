@@ -41,7 +41,7 @@
             }
         }
         
-        definition.position = new b2Vec2(details.x || 5, details.y || 5);
+        definition.position = new b2Vec2(details.x || 0, details.y || 0);
         definition.linearVelocity = new b2Vec2(details.vx || 0, details.vy || 0);
         definition.userData = details.userData;
         definition.type = details.type === "static" ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
@@ -122,12 +122,15 @@
             debug.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
             this.box2dWorld.SetDebugDraw(debug);
         },
+        makeBody: function (options) {
+            makeBody.apply(null, [this, options])
+        },
         setUpDebugDropThings: function (canvas, camera) {
             var $ = window.jQuery;
             var that = this;
             $(canvas).click(function (e) {
                 var offs = $(this).offset();
-                makeBody(that, camera.absoluteCoordinates({
+                that.makeBody(camera.absoluteCoordinates({
                     x: e.pageX - offs.left,
                     y: e.pageY - offs.top}));
             });
