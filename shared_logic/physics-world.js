@@ -59,24 +59,19 @@
         
         details.shape = details.shape || defaults.shape;
  
-        switch (details.shape) {
-            case "circle":
-                fixtureDef.shape = new b2CircleShape(defaults.radius || details.radius);
-                break;
-            case "polygon":
-                fixtureDef.shape = new b2PolygonShape();
-                fixtureDef.shape.SetAsArray(details.points, details.points.length);
-                break;
-            case "block":
-            default:
-                details.width = details.width || defaults.width;
-                details.height = details.height || defaults.height;
-                fixtureDef.shape = new b2PolygonShape();
-                fixtureDef.shape.SetAsBox(details.width / 2,
+        if (details.shape === 'circle') {
+            fixtureDef.shape = new b2CircleShape(details.radius || defaults.radius);
+        } else if (details.shape === 'polygon') {
+            fixtureDef.shape = new b2PolygonShape();
+            fixtureDef.shape.SetAsArray(details.points, details.points.length);
+        } else if (details.shape === 'block') {
+            details.width = details.width || defaults.width;
+            details.height = details.height || defaults.height;
+            fixtureDef.shape = new b2PolygonShape();
+            fixtureDef.shape.SetAsBox(details.width / 2,
                 details.height / 2);
-            break;
         }
-         
+        
         body.CreateFixture(fixtureDef);
         
         return body;
@@ -118,7 +113,7 @@
             }
         },
         setUpDebugDraw: function (debugOptions) {
-            var debug = new b2DebugDraw();
+            var debug = new CameraOrientedDebugDraw(debugOptions.camera);
             this.debugDraw = true;
             debug.SetSprite(debugOptions.canvasContext);
             debug.SetDrawScale(50);
@@ -138,6 +133,44 @@
             });
         }
     });
+    
+    function CameraOrientedDebugDraw(camera) {
+        this.camera = camera;
+        b2DebugDraw.apply(this, []);
+    }
+    
+    CameraOrientedDebugDraw.prototype = new b2DebugDraw();
+    
+    CameraOrientedDebugDraw.prototype.DrawPolygon = function (vertices, vertexCount, color) {
+        for (var i = 0; i < vertexCount; i++) {
+            vertices[i].x -= this.camera.offset;
+        }
+        return b2DebugDraw.prototype.DrawPolygon.call(this, vertices, vertexCount, color);
+    };
+    CameraOrientedDebugDraw.prototype.DrawSolidPolygon = function (vertices, vertexCount, color) {
+        for (var i = 0; i < vertexCount; i++) {
+            vertices[i].x -= this.camera.offset;
+        }
+        return b2DebugDraw.prototype.DrawSolidPolygon.call(this, vertices, vertexCount, color);
+    };
+    CameraOrientedDebugDraw.prototype.DrawCircle = function (center, radius, color) {
+        center.x -= this.camera.offset;
+        return b2DebugDraw.prototype.DrawCircle.call(this, center, radius, color);
+    };
+    CameraOrientedDebugDraw.prototype.DrawSolidCircle = function (center, radius, axis, color) {
+        center.x -= this.camera.offset;
+        return b2DebugDraw.prototype.DrawSolidCircle.call(this, center, radius, axis, color);
+    };
+    CameraOrientedDebugDraw.prototype.DrawSegment = function (p1, p2, color) {
+        p1.x -= this.camera.offset;
+        p2.x -= this.camera.offset;
+        return b2DebugDraw.prototype.DrawSegment.call(this, p1, p2, color);
+    };
+    CameraOrientedDebugDraw.prototype.DrawTransform = function (xf) {
+        xf.position.x -= this.camera.offset;
+        return b2DebugDraw.prototype.DrawTransform.call(this, xf);
+    };
+    
     if (server) {
         module.exports.PhysicsWorld = PhysicsWorld;
     } else {

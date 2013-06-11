@@ -108,7 +108,8 @@ jQuery(function ($) {
         // TODO debug only if there's a ?debug GET param.
         physicsWorld.setUpDebugDraw({
             canvasContext: debugCanvasContext,
-            scale: 50});
+            scale: 50,
+            camera: camera});
         physicsWorld.setUpDebugDropThings(debugCanvas, camera);
     }
     function tryInit() {
