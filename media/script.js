@@ -3,7 +3,9 @@ jQuery(function ($) {
     'use strict';
     var hostname = window.location.hostname,
         socket = window.socket = window.io.connect('http://' + hostname + ':9090'),
-        //Classes
+        // Regex for finding the "debug" parameter
+        rDebugParameter = /[\?&]debug(?=[&=]|$)/,
+        // Classes
         Class = window.Class,
         Movement = window.Movement,
         Entity = window.Entity,
@@ -105,7 +107,9 @@ jQuery(function ($) {
         loop();
     }
     function debugSetUp() {
-        // TODO debug only if there's a ?debug GET param.
+        if (!rDebugParameter.exec(window.location.search)) {
+            return;
+        }
         physicsWorld.setUpDebugDraw({
             canvasContext: debugCanvasContext,
             scale: 50,
