@@ -123,7 +123,7 @@
             this.box2dWorld.SetDebugDraw(debug);
         },
         makeBody: function (options) {
-            makeBody.apply(null, [this, options])
+            return makeBody(this, options);
         },
         setUpDebugDropThings: function (canvas, camera) {
             var $ = window.jQuery;
