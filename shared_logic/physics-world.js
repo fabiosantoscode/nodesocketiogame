@@ -107,6 +107,24 @@
             this.box2dWorld = new b2World(gravity, true);
         },
         frame: function () {
+            
+            // TODO DELETE ME DELETE ME
+            if (this.player) {
+                this.player.SetActive(true)
+                this.player.SetAwake(true)
+                if (this.goleft) {
+                    this.player.SetLinearVelocity({x: -7, y: 0})
+                }
+                if (this.goright) {
+                    this.player.SetLinearVelocity({x: 7, y: 0})
+                }
+                
+                if (!(this.goleft || this.goright)) {
+                    this.player.circleBottom.SetFriction(100)
+                } else {
+                    this.player.circleBottom.SetFriction(0)
+                }
+            }
             this.box2dWorld.Step(this.timeStep / 1000, 8, 3);
             if (this.debugDraw) {
                 this.box2dWorld.DrawDebugData();
@@ -138,6 +156,50 @@
                     y: coords.y
                 });
             });
+
+            // TODO DELETE ME DELETE ME
+            var player = this.player = this.makeBody({
+                height: 0.6,
+                width: 0.5,
+                y: 2,
+                bullet: true,
+                fixedRotation: true
+            })
+
+            {
+                var circleTop = new b2FixtureDef()
+                circleTop.shape = new b2CircleShape(0.25)
+                circleTop.shape.SetLocalPosition({x: 0, y: -0.3})
+                circleTop.density = 2
+                circleTop.friction = 1
+                circleTop.restitution = 0.1
+                player.CreateFixture(circleTop)
+            }{
+                var circleBottom = new b2FixtureDef()
+                circleBottom.shape = new b2CircleShape(0.25)
+                circleBottom.shape.SetLocalPosition({x: 0, y: 0.3})
+                circleBottom.density = 2
+                circleBottom.friction = 100
+                circleBottom.restitution = 0.1
+                player.circleBottom = player.CreateFixture(circleBottom)
+            }
+
+            var phwrld = this
+            $(window)
+                .keydown(function (e) {
+                    if (e.which === 37) {
+                        phwrld.goleft = true
+                    } else if (e.which === 39) {
+                        phwrld.goright = true
+                    }
+                })
+                .keyup(function (e) {
+                    if (e.which === 37) {
+                        phwrld.goleft = false
+                    } else if (e.which === 39) {
+                        phwrld.goright = false
+                    }
+                })
         }
     });
     
