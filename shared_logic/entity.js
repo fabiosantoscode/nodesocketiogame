@@ -25,6 +25,10 @@
         }
         return packet;
     }
+    function SetMovementWorld(world_) {
+        world = world_;
+    }
+    var world;
     /*
         Entity class:
             Broadcasted to all players who have it within their Camera's range.
@@ -121,7 +125,9 @@
     });
     try {
         module.exports.Entity = Entity;
+        module.exports.SetMovementWorld = SetMovementWorld;
     } catch (e) {
         window.Entity = Entity;
+        window.SetMovementWorld = SetMovementWorld;
     }
 }());

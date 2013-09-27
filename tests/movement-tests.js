@@ -3,17 +3,18 @@
 raises, start, stop, strictEqual, test */
 (function (window) {
     'use strict';
-    var Movement = window.Movement,
+    var Movement = window.Entity,
         world = new window.World([{
                 position: {x: 10, y: -10},
                 size: {h: 100, w: 100},
                 collision: 'rect'
             }]),
         movementFactory = function (position, size, delta) {
-            var ret = new Movement(
+            var ret = new Entity(
                 position || {x: 0, y: 0},
                 size || {h: 10, w: 10});
             ret.delta = delta || {x: 0, y: 0};
+            ret.accelerationTime = 0
             return ret;
         };
     window.SetMovementWorld(world);
